@@ -3,6 +3,5 @@
 
 #pragma once
 
-#include "iterator/iterator.hpp"
-#include "iterator/iterator_traits.hpp"
-#include "iterator/reverse_iterator.hpp"
+#include "algorithm/equal.hpp"
+#include "algorithm/lexicographical_compare.hpp"

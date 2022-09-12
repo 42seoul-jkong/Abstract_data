@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "enable_if.hpp"
-#include "is_object.hpp"
+#include <type_traits.hpp>
 
 namespace ft
 {
     template <class T>
-    typename ft::enable_if<ft::is_object<T>::value, T*>::type
-    addressof(T& arg) throw()
+    typename ft::enable_if<ft::is_object<T>::value, T*>::type addressof(T& arg) throw()
     {
         return reinterpret_cast<T*>(
             &const_cast<char&>(
@@ -18,8 +16,7 @@ namespace ft
     }
 
     template <class T>
-    typename ft::enable_if<!ft::is_object<T>::value, T*>::type
-    addressof(T& arg) throw()
+    typename ft::enable_if<!ft::is_object<T>::value, T*>::type addressof(T& arg) throw()
     {
         return &arg;
     }
