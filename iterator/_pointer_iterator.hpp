@@ -1,0 +1,171 @@
+/* Any copyright is dedicated to the Public Domain.
+ * https://creativecommons.org/publicdomain/zero/1.0/ */
+
+#pragma once
+
+#include "iterator_traits.hpp"
+
+#include <memory.hpp>
+#include <type_traits.hpp>
+
+#include <cstddef>
+
+namespace ft
+{
+    template <class TIter, class _TCont>
+    struct _pointer_iterator
+    {
+    protected:
+        typedef iterator_traits<TIter> _Traits;
+
+    public:
+        typedef TIter iterator_type;
+        typedef typename _Traits::difference_type iterator_category;
+        typedef typename _Traits::difference_type value_type;
+        typedef typename _Traits::difference_type difference_type;
+        typedef typename _Traits::pointer pointer;
+        typedef typename _Traits::reference reference;
+
+    protected:
+        TIter current;
+
+    public:
+        _pointer_iterator() : current(iterator_type()) {}
+        explicit _pointer_iterator(const iterator_type& current) : current(current) {}
+        template <class U>
+        _pointer_iterator(const _pointer_iterator<U, ft::enable_if<ft::is_same<U, typename _TCont::pointer>::value, _TCont>::type>& that) : current(that.base()) {}
+
+        iterator_type base() const { return current; }
+
+        reference operator*() const
+        {
+            return *current;
+        }
+
+        pointer operator->() const
+        {
+            return current;
+        }
+
+        reference operator[](difference_type n) const
+        {
+            return current[n];
+        }
+
+        _pointer_iterator& operator++()
+        {
+            ++current;
+            return *this;
+        }
+
+        _pointer_iterator& operator--()
+        {
+            --current;
+            return *this;
+        }
+
+        _pointer_iterator operator++(int)
+        {
+            return _pointer_iterator(current++);
+        }
+
+        _pointer_iterator operator--(int)
+        {
+            return _pointer_iterator(current--);
+        }
+
+        _pointer_iterator operator+(difference_type n) const
+        {
+            return _pointer_iterator(current + n);
+        }
+
+        _pointer_iterator operator-(difference_type n) const
+        {
+            return _pointer_iterator(current - n);
+        }
+
+        _pointer_iterator& operator+=(difference_type n) const
+        {
+            current += n;
+            return *this;
+        }
+
+        _pointer_iterator& operator-=(difference_type n) const
+        {
+            current -= n;
+            return *this;
+        }
+    };
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator==(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return lhs.base() == rhs.base();
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator!=(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator<(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return lhs.base() < rhs.base();
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator<=(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator>(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline bool operator>=(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return !(lhs < rhs);
+    }
+
+    template <typename TIter, typename _TCont>
+    inline _pointer_iterator<TIter, _TCont> operator+(
+        typename _pointer_iterator<TIter, _TCont>::difference_type n,
+        const _pointer_iterator<TIter, _TCont>& it)
+    {
+        return _pointer_iterator<TIter, _TCont>(it.base() + n);
+    }
+
+    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    inline typename _pointer_iterator<TIteratorFirst, _TCont>::difference_type operator-(
+        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
+        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+    {
+        return lhs.base() - rhs.base();
+    }
+
+    template <typename TIter, typename _TCont>
+    inline typename _pointer_iterator<TIter, _TCont>::difference_type operator-(
+        const _pointer_iterator<TIter, _TCont>& lhs,
+        const _pointer_iterator<TIter, _TCont>& rhs)
+    {
+        return lhs.base() - rhs.base();
+    }
+}

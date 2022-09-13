@@ -21,12 +21,12 @@ namespace ft
         return true;
     }
 
-    template <class TIterFirst, class TIterSecond, class BinaryPredicate>
+    template <class TIterFirst, class TIterSecond, class TBinaryPredicate>
     inline bool
     equal(
         TIterFirst first1, TIterFirst last1,
         TIterSecond first2,
-        BinaryPredicate p)
+        TBinaryPredicate p)
     {
         for (; first1 != last1; ++first1, ++first2)
         {

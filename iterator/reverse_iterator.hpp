@@ -10,37 +10,38 @@
 
 namespace ft
 {
-    template <class TIterator>
+    template <class TIter>
     class reverse_iterator
-        : public iterator<typename iterator_traits<TIterator>::iterator_category,
-                          typename iterator_traits<TIterator>::value_type,
-                          typename iterator_traits<TIterator>::difference_type,
-                          typename iterator_traits<TIterator>::pointer,
-                          typename iterator_traits<TIterator>::reference>
+        : public iterator<typename iterator_traits<TIter>::iterator_category,
+                          typename iterator_traits<TIter>::value_type,
+                          typename iterator_traits<TIter>::difference_type,
+                          typename iterator_traits<TIter>::pointer,
+                          typename iterator_traits<TIter>::reference>
     {
     protected:
-        TIterator current;
-
-        typedef iterator_traits<TIterator> _Traits;
+        typedef iterator_traits<TIter> _Traits;
 
     public:
-        typedef TIterator iterator_type;
+        typedef TIter iterator_type;
         typedef typename _Traits::difference_type iterator_category;
         typedef typename _Traits::difference_type value_type;
         typedef typename _Traits::difference_type difference_type;
         typedef typename _Traits::pointer pointer;
         typedef typename _Traits::reference reference;
 
+    protected:
+        TIter current;
+
         reverse_iterator() : current() {}
         explicit reverse_iterator(iterator_type current) : current(current) {}
         template <class U>
-        reverse_iterator(const reverse_iterator<U>& other) : current(other.base()) {}
+        reverse_iterator(const reverse_iterator<U>& that) : current(that.base()) {}
 
         iterator_type base() const { return current; }
 
         reference operator*() const
         {
-            TIterator tmp = current;
+            TIter tmp = current;
             return *--tmp;
         }
 
@@ -151,18 +152,18 @@ namespace ft
         return !(lhs < rhs);
     }
 
-    template <typename TIterator>
-    inline reverse_iterator<TIterator> operator+(
-        typename reverse_iterator<TIterator>::difference_type n,
-        const reverse_iterator<TIterator>& it)
+    template <typename TIter>
+    inline reverse_iterator<TIter> operator+(
+        typename reverse_iterator<TIter>::difference_type n,
+        const reverse_iterator<TIter>& it)
     {
-        return reverse_iterator<TIterator>(it.base() - n);
+        return reverse_iterator<TIter>(it.base() - n);
     }
 
-    template <typename TIterator>
-    inline typename reverse_iterator<TIterator>::difference_type operator-(
-        const reverse_iterator<TIterator>& lhs,
-        const reverse_iterator<TIterator>& rhs)
+    template <typename TIter>
+    inline typename reverse_iterator<TIter>::difference_type operator-(
+        const reverse_iterator<TIter>& lhs,
+        const reverse_iterator<TIter>& rhs)
     {
         return rhs.base() - lhs.base();
     }

@@ -5,18 +5,18 @@
 
 namespace ft
 {
-    template <class T, T val>
+    template <class T, T Value>
     struct integral_constant
     {
         typedef T value_type;
-        typedef integral_constant<T, val> type;
-        static const T value = val;
+        typedef integral_constant<T, Value> type;
+        static const T value = Value;
 
-        operator T() const { return val; }
+        operator T() const { return Value; }
     };
 
-    template <class T, T val>
-    T const integral_constant<T, val>::value;
+    template <class T, T Value>
+    T const integral_constant<T, Value>::value;
 
     typedef integral_constant<bool, true> true_type;
     typedef integral_constant<bool, false> false_type;

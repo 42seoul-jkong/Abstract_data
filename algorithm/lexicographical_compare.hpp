@@ -21,12 +21,12 @@ namespace ft
         return (first1 == last1) && (first2 != last2);
     }
 
-    template <class TIterFirst, class TIterSecond, class Compare>
+    template <class TIterFirst, class TIterSecond, class TCompare>
     inline bool
     lexicographical_compare(
         TIterFirst first1, TIterFirst last1,
         TIterSecond first2, TIterSecond last2,
-        Compare comp)
+        TCompare comp)
     {
         for (; (first1 != last1) && (first2 != last2); ++first1, (void)++first2)
         {
