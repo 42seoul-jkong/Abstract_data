@@ -21,6 +21,12 @@ template <typename TKey, typename T, typename TKeySelector, typename TCompare = 
 class _red_black_tree
 {
 public:
+    typedef TKey key_type;
+    typedef T value_type;
+    typedef TKeySelector key_selector;
+    typedef TCompare key_compare;
+    typedef TAlloc allocator_type;
+
     enum node_color
     {
         red,
@@ -44,6 +50,26 @@ public:
               data(data), color(red)
         {
         }
+
+        node_data(const node_data& that)
+            : left(that.left), right(that.right), parent(that.parent),
+              data(that.data), color(that.color)
+        {
+        }
+
+        ~node_data()
+        {
+        }
+
+        node_data& operator=(const node_data& that)
+        {
+            this->left = that.left;
+            this->right = that.right;
+            this->parent = that.parent;
+            this->data = that.data;
+            this->color = that.color;
+            return *this;
+        }
     };
 
 private:
@@ -59,13 +85,49 @@ public:
     {
     }
 
+    _red_black_tree(const _red_black_tree& that)
+        : nilNode(&this->nilNode), rootNode(&this->nilNode)
+    {
+        this->first() = this->copy(that.first(), this->root());
+    }
+
     virtual ~_red_black_tree()
     {
         this->destroy(this->first());
     }
 
+    _red_black_tree& operator=(const _red_black_tree& that)
+    {
+        this->destroy(this->first());
+        this->first() = this->copy(that.first(), this->root());
+        return *this;
+    }
+
 protected:
     bool try_find(const TKey& key, node_data*& node, node_data*& parent)
+    {
+        node = this->first();
+        parent = this->root();
+
+        while (node != this->nil())
+        {
+            parent = node;
+            if (key == TKeySelector()(node->data))
+            {
+                return true;
+            }
+            if (TCompare()(key, TKeySelector()(node->data)))
+            {
+                node = node->left;
+            }
+            else
+            {
+                node = node->right;
+            }
+        }
+        return false;
+    }
+    bool try_find(const TKey& key, const node_data*& node, const node_data*& parent) const
     {
         node = this->first();
         parent = this->root();
@@ -262,6 +324,19 @@ protected:
         node->color = black;
     }
 
+    node_data* copy(node_data* that, node_data* parent)
+    {
+        if (that != that->parent) // is not nil
+        {
+            node_data* node = new node_data(*that);
+            node->parent = parent;
+            node->left = this->copy(that->left, node);
+            node->right = this->copy(that->right, node);
+            return node;
+        }
+        return this->nil();
+    }
+
     void destroy(node_data* node)
     {
         if (node != this->nil())
@@ -273,25 +348,19 @@ protected:
     }
 
 public:
-    bool empty()
+    bool empty() const
     {
         return this->rootNode.left == &this->nilNode && this->rootNode.right == &this->nilNode;
     }
 
-    node_data*& first()
-    {
-        return this->rootNode.left;
-    }
+    node_data*& first() { return this->rootNode.left; }
+    node_data* const& first() const { return this->rootNode.left; }
 
-    node_data* root()
-    {
-        return &this->rootNode;
-    }
+    node_data* root() { return &this->rootNode; }
+    const node_data* root() const { return &this->rootNode; }
 
-    node_data* nil()
-    {
-        return &this->nilNode;
-    }
+    node_data* nil() { return &this->nilNode; }
+    const node_data* nil() const { return &this->nilNode; }
 
     node_data* find(const TKey& key)
     {
@@ -307,10 +376,47 @@ public:
             return NULL;
         }
     }
+    const node_data* find(const TKey& key) const
+    {
+        const node_data* node;
+        const node_data* parent;
+
+        if (try_find(key, node, parent))
+        {
+            return node;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
 
     node_data* successor(node_data* node)
     {
         node_data* succ = node->right;
+        if (succ != this->nil())
+        {
+            while (succ->left != this->nil())
+            {
+                succ = succ->left;
+            }
+        }
+        else
+        {
+            for (succ = node->parent; node == succ->right; succ = succ->parent)
+            {
+                node = succ;
+            }
+            if (succ == this->root())
+            {
+                succ = NULL;
+            }
+        }
+        return succ;
+    }
+    const node_data* successor(const node_data* node) const
+    {
+        const node_data* succ = node->right;
         if (succ != this->nil())
         {
             while (succ->left != this->nil())
@@ -355,8 +461,31 @@ public:
         }
         return pred;
     }
+    const node_data* predecessor(const node_data* node) const
+    {
+        const node_data* pred = node->left;
+        if (pred != this->nil())
+        {
+            while (pred->right != this->nil())
+            {
+                pred = pred->right;
+            }
+        }
+        else
+        {
+            for (pred = node->parent; node == pred->left; pred = pred->parent)
+            {
+                node = pred;
+            }
+            if (pred == this->root())
+            {
+                pred = NULL;
+            }
+        }
+        return pred;
+    }
 
-    // TFunc: int (*func)(const T&)
+    // TFunc: int (*func)(T&)
     template <typename TFunc>
     int apply_node(_tree_traversal order, node_data* node)
     {
@@ -374,7 +503,7 @@ public:
                         break;
                     }
                 }
-                error = this->apply_node(order, node->left);
+                error = this->apply_node<TFunc>(order, node->left);
                 if (error != 0)
                 {
                     break;
@@ -387,7 +516,55 @@ public:
                         break;
                     }
                 }
-                error = this->apply_node(order, node->right);
+                error = this->apply_node<TFunc>(order, node->right);
+                if (error != 0)
+                {
+                    break;
+                }
+                if (order == postorder)
+                {
+                    error = TFunc()(node->data);
+                    if (error != 0)
+                    {
+                        break;
+                    }
+                }
+            }
+        } while (0);
+        return error;
+    }
+    // TFunc: int (*func)(const T&)
+    template <typename TFunc>
+    int apply_node(_tree_traversal order, const node_data* node) const
+    {
+        int error = 0;
+
+        do
+        {
+            if (node != this->nil())
+            {
+                if (order == preorder)
+                {
+                    error = TFunc()(node->data);
+                    if (error != 0)
+                    {
+                        break;
+                    }
+                }
+                error = this->apply_node<TFunc>(order, node->left);
+                if (error != 0)
+                {
+                    break;
+                }
+                if (order == inorder)
+                {
+                    error = TFunc()(node->data);
+                    if (error != 0)
+                    {
+                        break;
+                    }
+                }
+                error = this->apply_node<TFunc>(order, node->right);
                 if (error != 0)
                 {
                     break;
