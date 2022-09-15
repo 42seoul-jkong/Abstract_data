@@ -73,11 +73,11 @@ public:
     };
 
 private:
-    // Fake root
-    node_data rootNode;
-
     // Sentinel nil
     node_data nilNode;
+
+    // Fake root
+    node_data rootNode;
 
 public:
     _red_black_tree()
@@ -88,7 +88,7 @@ public:
     _red_black_tree(const _red_black_tree& that)
         : nilNode(&this->nilNode), rootNode(&this->nilNode)
     {
-        this->first() = this->copy(that.first(), this->root());
+        this->first() = this->copy(that.first(), this->root(), that.nil());
     }
 
     virtual ~_red_black_tree()
@@ -99,7 +99,7 @@ public:
     _red_black_tree& operator=(const _red_black_tree& that)
     {
         this->destroy(this->first());
-        this->first() = this->copy(that.first(), this->root());
+        this->first() = this->copy(that.first(), this->root(), that.nil());
         return *this;
     }
 
@@ -324,14 +324,14 @@ protected:
         node->color = black;
     }
 
-    node_data* copy(node_data* that, node_data* parent)
+    node_data* copy(node_data* that, node_data* parent, node_data* that_nil)
     {
-        if (that != that->parent) // is not nil
+        if (that != that_nil)
         {
             node_data* node = new node_data(*that);
             node->parent = parent;
-            node->left = this->copy(that->left, node);
-            node->right = this->copy(that->right, node);
+            node->left = this->copy(that->left, node, that_nil);
+            node->right = this->copy(that->right, node, that_nil);
             return node;
         }
         return this->nil();
