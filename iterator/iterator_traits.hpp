@@ -4,34 +4,10 @@
 #pragma once
 
 #include <cstddef>
+#include <iterator>
 
 namespace ft
 {
-    // LegacyInputIterator
-    struct input_iterator_tag
-    {
-    };
-
-    // LegacyOutputIterator
-    struct output_iterator_tag
-    {
-    };
-
-    // LegacyForwardIterator
-    struct forward_iterator_tag : public input_iterator_tag
-    {
-    };
-
-    // LegacyBidirectionalIterator
-    struct bidirectional_iterator_tag : public forward_iterator_tag
-    {
-    };
-
-    // LegacyRandomAccessIterator
-    struct random_access_iterator_tag : public bidirectional_iterator_tag
-    {
-    };
-
     template <typename TIter>
     struct iterator_traits
     {
@@ -50,7 +26,7 @@ namespace ft
         typedef T value_type;
         typedef T* pointer;
         typedef T& reference;
-        typedef random_access_iterator_tag iterator_category;
+        typedef std::random_access_iterator_tag iterator_category;
     };
 
     // Const-Pointer Specialization
@@ -61,6 +37,6 @@ namespace ft
         typedef T value_type;
         typedef const T* pointer;
         typedef const T& reference;
-        typedef random_access_iterator_tag iterator_category;
+        typedef std::random_access_iterator_tag iterator_category;
     };
 }

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <iterator.hpp>
+
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -62,6 +64,147 @@ namespace ft
         postorder
     };
 
+    template <typename T, typename TTree>
+    struct _tree_iterator
+    {
+        typedef T value_type;
+        typedef T& reference;
+        typedef T* pointer;
+
+        typedef std::bidirectional_iterator_tag iterator_category;
+        typedef std::ptrdiff_t difference_type;
+
+        TTree* tree;
+        typename TTree::node_type* p;
+
+        _tree_iterator() throw()
+            : p() {}
+
+        explicit _tree_iterator(TTree* tree, typename TTree::node_type* p) throw()
+            : tree(tree), p(p) {}
+
+        _tree_iterator(const _tree_iterator& that) throw()
+            : tree(that.tree), p(that.p) {}
+
+        reference operator*() const throw()
+        {
+            return this->p->data;
+        }
+
+        pointer operator->() const throw()
+        {
+            return &this->p->data;
+        }
+
+        _tree_iterator& operator++() throw()
+        {
+            this->p = this->tree->successor(this->p);
+            return *this;
+        }
+
+        _tree_iterator operator++(int) throw()
+        {
+            _tree_iterator tmp = *this;
+            this->p = this->tree->successor(this->p);
+            return tmp;
+        }
+
+        _tree_iterator& operator--() throw()
+        {
+            this->p = this->tree->predecessor(this->p);
+            return *this;
+        }
+
+        _tree_iterator operator--(int) throw()
+        {
+            _tree_iterator tmp = *this;
+            this->p = this->tree->predecessor(this->p);
+            return tmp;
+        }
+
+        friend bool operator==(const _tree_iterator& lhs, const _tree_iterator& rhs) throw()
+        {
+            return lhs.p == rhs.p;
+        }
+
+        friend bool operator!=(const _tree_iterator& lhs, const _tree_iterator& rhs) throw()
+        {
+            return lhs.p != rhs.p;
+        }
+    };
+
+    template <typename T, typename TTree>
+    struct _tree_const_iterator
+    {
+        typedef const T value_type;
+        typedef const T& reference;
+        typedef const T* pointer;
+
+        typedef std::bidirectional_iterator_tag iterator_category;
+        typedef std::ptrdiff_t difference_type;
+
+        const TTree* tree;
+        const typename TTree::node_type* p;
+
+        _tree_const_iterator() throw()
+            : p() {}
+
+        explicit _tree_const_iterator(const TTree* tree, const typename TTree::node_type* p) throw()
+            : tree(tree), p(p) {}
+
+        _tree_const_iterator(const _tree_const_iterator& that) throw()
+            : tree(that.tree), p(that.p) {}
+
+        _tree_const_iterator(const _tree_iterator<T, TTree>& that) throw()
+            : tree(that.tree), p(that.p) {}
+
+        reference operator*() const throw()
+        {
+            return this->p->data;
+        }
+
+        pointer operator->() const throw()
+        {
+            return &this->p->data;
+        }
+
+        _tree_const_iterator& operator++() throw()
+        {
+            this->p = this->tree->successor(this->p);
+            return *this;
+        }
+
+        _tree_const_iterator operator++(int) throw()
+        {
+            _tree_const_iterator tmp = *this;
+            this->p = this->tree->successor(this->p);
+            return tmp;
+        }
+
+        _tree_const_iterator& operator--() throw()
+        {
+            this->p = this->tree->predecessor(this->p);
+            return *this;
+        }
+
+        _tree_const_iterator operator--(int) throw()
+        {
+            _tree_const_iterator tmp = *this;
+            this->p = this->tree->predecessor(this->p);
+            return tmp;
+        }
+
+        friend bool operator==(const _tree_const_iterator& lhs, const _tree_const_iterator& rhs) throw()
+        {
+            return lhs.p == rhs.p;
+        }
+
+        friend bool operator!=(const _tree_const_iterator& lhs, const _tree_const_iterator& rhs) throw()
+        {
+            return lhs.p != rhs.p;
+        }
+    };
+
     // 참조: 2-3-4 이진 탐색 트리, Red-Black 트리
     // TKeySelector: const TKey& (*keySelector)(const T&)
     // TCompare: bool (*compare)(const TKey&, const TKey&)
@@ -75,6 +218,11 @@ namespace ft
         typedef TKeySelector key_selector;
         typedef TCompare key_compare;
         typedef typename TAlloc::template rebind<node_type>::other allocator_type;
+
+        typedef _tree_iterator<T, _tree> iterator;
+        typedef _tree_const_iterator<T, _tree> const_iterator;
+        typedef ft::reverse_iterator<iterator> reverse_iterator;
+        typedef ft::reverse_iterator<const_iterator> reverse_const_iterator;
 
     private:
         // Sentinel nil
@@ -107,6 +255,42 @@ namespace ft
             this->destroy(this->first());
             this->first() = this->copy(that.first(), this->root(), that.nil());
             return *this;
+        }
+
+        iterator begin()
+        {
+            return iterator(this, this->minimum());
+        }
+        const_iterator begin() const
+        {
+            return const_iterator(this, this->minimum());
+        }
+
+        iterator end()
+        {
+            return iterator(this, NULL);
+        }
+        const_iterator end() const
+        {
+            return const_iterator(this, NULL);
+        }
+
+        reverse_iterator rbegin()
+        {
+            return reverse_iterator(end());
+        }
+        reverse_const_iterator rbegin() const
+        {
+            return reverse_const_iterator(end());
+        }
+
+        reverse_iterator rend()
+        {
+            return reverse_iterator(begin());
+        }
+        reverse_const_iterator rend() const
+        {
+            return reverse_const_iterator(begin());
         }
 
     protected:
@@ -330,7 +514,7 @@ namespace ft
             node->color = black;
         }
 
-        node_type* copy(node_type* that, node_type* parent, node_type* that_nil)
+        node_type* copy(const node_type* that, node_type* parent, const node_type* that_nil)
         {
             if (that != that_nil)
             {
@@ -399,6 +583,44 @@ namespace ft
             }
         }
 
+        node_type* minimum()
+        {
+            node_type* node = first();
+            while (node->left != this->nil())
+            {
+                node = node->left;
+            }
+            return node;
+        }
+        const node_type* minimum() const
+        {
+            const node_type* node = first();
+            while (node->left != this->nil())
+            {
+                node = node->left;
+            }
+            return node;
+        }
+
+        node_type* maximum()
+        {
+            node_type* node = first();
+            while (node->right != this->nil())
+            {
+                node = node->right;
+            }
+            return node;
+        }
+        const node_type* maximum() const
+        {
+            const node_type* node = first();
+            while (node->right != this->nil())
+            {
+                node = node->right;
+            }
+            return node;
+        }
+
         node_type* successor(node_type* node)
         {
             node_type* succ = node->right;
@@ -448,6 +670,10 @@ namespace ft
 
         node_type* predecessor(node_type* node)
         {
+            if (node == NULL)
+            {
+                return maximum();
+            }
             node_type* pred = node->left;
             if (pred != this->nil())
             {
@@ -471,6 +697,10 @@ namespace ft
         }
         const node_type* predecessor(const node_type* node) const
         {
+            if (node == NULL)
+            {
+                return maximum();
+            }
             const node_type* pred = node->left;
             if (pred != this->nil())
             {

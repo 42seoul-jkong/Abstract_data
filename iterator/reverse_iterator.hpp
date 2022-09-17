@@ -32,6 +32,7 @@ namespace ft
     protected:
         TIter current;
 
+    public:
         reverse_iterator() : current() {}
         explicit reverse_iterator(iterator_type current) : current(current) {}
         template <class U>
@@ -104,50 +105,50 @@ namespace ft
         }
     };
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator==(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return lhs.base() == rhs.base();
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator!=(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return !(lhs == rhs);
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator<(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return rhs.base() < lhs.base();
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator<=(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return !(rhs < lhs);
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator>(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return rhs < lhs;
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool operator>=(
-        const reverse_iterator<TIteratorFirst>& lhs,
-        const reverse_iterator<TIteratorSecond>& rhs)
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return !(lhs < rhs);
     }
@@ -164,6 +165,14 @@ namespace ft
     inline typename reverse_iterator<TIter>::difference_type operator-(
         const reverse_iterator<TIter>& lhs,
         const reverse_iterator<TIter>& rhs)
+    {
+        return rhs.base() - lhs.base();
+    }
+
+    template <typename TIterFirst, typename TIterSecond>
+    inline typename reverse_iterator<TIterFirst>::difference_type operator-(
+        const reverse_iterator<TIterFirst>& lhs,
+        const reverse_iterator<TIterSecond>& rhs)
     {
         return rhs.base() - lhs.base();
     }

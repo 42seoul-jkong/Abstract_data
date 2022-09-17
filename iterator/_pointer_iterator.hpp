@@ -97,50 +97,50 @@ namespace ft
         }
     };
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator==(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return lhs.base() == rhs.base();
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator!=(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return !(lhs == rhs);
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator<(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return lhs.base() < rhs.base();
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator<=(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return !(rhs < lhs);
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator>(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return rhs < lhs;
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
     inline bool operator>=(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return !(lhs < rhs);
     }
@@ -153,18 +153,18 @@ namespace ft
         return _pointer_iterator<TIter, _TCont>(it.base() + n);
     }
 
-    template <typename TIteratorFirst, typename TIteratorSecond, typename _TCont>
-    inline typename _pointer_iterator<TIteratorFirst, _TCont>::difference_type operator-(
-        const _pointer_iterator<TIteratorFirst, _TCont>& lhs,
-        const _pointer_iterator<TIteratorSecond, _TCont>& rhs)
-    {
-        return lhs.base() - rhs.base();
-    }
-
     template <typename TIter, typename _TCont>
     inline typename _pointer_iterator<TIter, _TCont>::difference_type operator-(
         const _pointer_iterator<TIter, _TCont>& lhs,
         const _pointer_iterator<TIter, _TCont>& rhs)
+    {
+        return lhs.base() - rhs.base();
+    }
+
+    template <typename TIterFirst, typename TIterSecond, typename _TCont>
+    inline typename _pointer_iterator<TIterFirst, _TCont>::difference_type operator-(
+        const _pointer_iterator<TIterFirst, _TCont>& lhs,
+        const _pointer_iterator<TIterSecond, _TCont>& rhs)
     {
         return lhs.base() - rhs.base();
     }
