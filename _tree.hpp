@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithm.hpp>
 #include <iterator.hpp>
 
 #include <cstddef>
@@ -26,25 +27,17 @@ namespace ft
 
         _node_data(_node_data* nil)
             : left(nil), right(nil), parent(nil),
-              data(), color(black)
-        {
-        }
+              data(), color(black) {}
 
         _node_data(_node_data* nil, const T& data)
             : left(nil), right(nil), parent(nil),
-              data(data), color(red)
-        {
-        }
+              data(data), color(red) {}
 
         _node_data(const _node_data& that)
             : left(that.left), right(that.right), parent(that.parent),
-              data(that.data), color(that.color)
-        {
-        }
+              data(that.data), color(that.color) {}
 
-        ~_node_data()
-        {
-        }
+        ~_node_data() {}
 
         _node_data& operator=(const _node_data& that)
         {
@@ -85,6 +78,13 @@ namespace ft
 
         _tree_iterator(const _tree_iterator& that) throw()
             : tree(that.tree), p(that.p) {}
+
+        _tree_iterator& operator=(const _tree_iterator& that) throw()
+        {
+            this->tree = that.tree;
+            this->p = that.p;
+            return *this;
+        }
 
         reference operator*() const throw()
         {
@@ -158,6 +158,13 @@ namespace ft
         _tree_const_iterator(const _tree_iterator<T, TTree>& that) throw()
             : tree(that.tree), p(that.p) {}
 
+        _tree_const_iterator& operator=(const _tree_const_iterator& that) throw()
+        {
+            this->tree = that.tree;
+            this->p = that.p;
+            return *this;
+        }
+
         reference operator*() const throw()
         {
             return this->p->data;
@@ -207,8 +214,8 @@ namespace ft
 
     // 참조: 2-3-4 이진 탐색 트리, Red-Black 트리
     // TKeySelector: const TKey& (*keySelector)(const T&)
-    // TCompare: bool (*compare)(const TKey&, const TKey&)
-    template <typename TKey, typename T, typename TKeySelector, typename TCompare = std::less<TKey>, typename TAlloc = std::allocator<T> >
+    // TComp: bool (*comp)(const TKey&, const TKey&)
+    template <typename TKey, typename T, typename TKeySelector, typename TComp = std::less<TKey>, typename TAlloc = std::allocator<T> >
     class _tree
     {
     public:
@@ -216,8 +223,10 @@ namespace ft
         typedef T value_type;
         typedef _node_data<T> node_type;
         typedef TKeySelector key_selector;
-        typedef TCompare key_compare;
+        typedef TComp key_compare;
         typedef typename TAlloc::template rebind<node_type>::other allocator_type;
+        typedef std::size_t size_type;
+        typedef std::ptrdiff_t difference_type;
 
         typedef _tree_iterator<T, _tree> iterator;
         typedef _tree_const_iterator<T, _tree> const_iterator;
@@ -231,13 +240,13 @@ namespace ft
         // Fake root
         node_type rootNode;
 
+        key_compare comp;
         allocator_type alloc;
+        size_type count;
 
     public:
-        _tree(const TAlloc& alloc = TAlloc())
-            : nilNode(&this->nilNode), rootNode(&this->nilNode), alloc(alloc)
-        {
-        }
+        _tree(const TComp& comp = TComp(), const TAlloc& alloc = TAlloc())
+            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(comp), alloc(alloc) {}
 
         _tree(const _tree& that)
             : nilNode(&this->nilNode), rootNode(&this->nilNode), alloc(that.alloc)
@@ -245,7 +254,7 @@ namespace ft
             this->first() = this->copy(that.first(), this->root(), that.nil());
         }
 
-        virtual ~_tree()
+        ~_tree()
         {
             this->destroy(this->first());
         }
@@ -255,42 +264,6 @@ namespace ft
             this->destroy(this->first());
             this->first() = this->copy(that.first(), this->root(), that.nil());
             return *this;
-        }
-
-        iterator begin()
-        {
-            return iterator(this, this->minimum());
-        }
-        const_iterator begin() const
-        {
-            return const_iterator(this, this->minimum());
-        }
-
-        iterator end()
-        {
-            return iterator(this, NULL);
-        }
-        const_iterator end() const
-        {
-            return const_iterator(this, NULL);
-        }
-
-        reverse_iterator rbegin()
-        {
-            return reverse_iterator(end());
-        }
-        reverse_const_iterator rbegin() const
-        {
-            return reverse_const_iterator(end());
-        }
-
-        reverse_iterator rend()
-        {
-            return reverse_iterator(begin());
-        }
-        reverse_const_iterator rend() const
-        {
-            return reverse_const_iterator(begin());
         }
 
     protected:
@@ -306,7 +279,7 @@ namespace ft
                 {
                     return true;
                 }
-                if (key_compare()(key, key_selector()(node->data)))
+                if (this->comp(key, key_selector()(node->data)))
                 {
                     node = node->left;
                 }
@@ -329,7 +302,7 @@ namespace ft
                 {
                     return true;
                 }
-                if (key_compare()(key, key_selector()(node->data)))
+                if (this->comp(key, key_selector()(node->data)))
                 {
                     node = node->left;
                 }
@@ -540,10 +513,48 @@ namespace ft
         }
 
     public:
+        iterator begin()
+        {
+            return iterator(this, this->minimum());
+        }
+        const_iterator begin() const
+        {
+            return const_iterator(this, this->minimum());
+        }
+
+        iterator end()
+        {
+            return iterator(this, NULL);
+        }
+        const_iterator end() const
+        {
+            return const_iterator(this, NULL);
+        }
+
+        reverse_iterator rbegin()
+        {
+            return reverse_iterator(end());
+        }
+        reverse_const_iterator rbegin() const
+        {
+            return reverse_const_iterator(end());
+        }
+
+        reverse_iterator rend()
+        {
+            return reverse_iterator(begin());
+        }
+        reverse_const_iterator rend() const
+        {
+            return reverse_const_iterator(begin());
+        }
+
         bool empty() const
         {
             return this->rootNode.left == &this->nilNode && this->rootNode.right == &this->nilNode;
         }
+
+        size_type size() const { return this->count; }
 
         node_type*& first() { return this->rootNode.left; }
         node_type* const& first() const { return this->rootNode.left; }
@@ -688,10 +699,6 @@ namespace ft
                 {
                     node = pred;
                 }
-                if (pred == this->root())
-                {
-                    pred = NULL;
-                }
             }
             return pred;
         }
@@ -715,18 +722,15 @@ namespace ft
                 {
                     node = pred;
                 }
-                if (pred == this->root())
-                {
-                    pred = NULL;
-                }
             }
             return pred;
         }
 
         // TFunc: int (*func)(T&)
         template <typename TFunc>
-        int apply_node(_tree_traversal order, node_type* node)
+        int apply_node(_tree_traversal order, node_type* node, const TFunc& func = TFunc())
         {
+            TFunc f = func;
             int error = 0;
 
             do
@@ -735,33 +739,33 @@ namespace ft
                 {
                     if (order == preorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
                         }
                     }
-                    error = this->apply_node<TFunc>(order, node->left);
+                    error = this->apply_node<TFunc>(order, node->left, f);
                     if (error != 0)
                     {
                         break;
                     }
                     if (order == inorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
                         }
                     }
-                    error = this->apply_node<TFunc>(order, node->right);
+                    error = this->apply_node<TFunc>(order, node->right, f);
                     if (error != 0)
                     {
                         break;
                     }
                     if (order == postorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
@@ -773,8 +777,9 @@ namespace ft
         }
         // TFunc: int (*func)(const T&)
         template <typename TFunc>
-        int apply_node(_tree_traversal order, const node_type* node) const
+        int apply_node(_tree_traversal order, const node_type* node, const TFunc& func = TFunc()) const
         {
+            TFunc f = func;
             int error = 0;
 
             do
@@ -783,33 +788,33 @@ namespace ft
                 {
                     if (order == preorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
                         }
                     }
-                    error = this->apply_node<TFunc>(order, node->left);
+                    error = this->apply_node<TFunc>(order, node->left, f);
                     if (error != 0)
                     {
                         break;
                     }
                     if (order == inorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
                         }
                     }
-                    error = this->apply_node<TFunc>(order, node->right);
+                    error = this->apply_node<TFunc>(order, node->right, f);
                     if (error != 0)
                     {
                         break;
                     }
                     if (order == postorder)
                     {
-                        error = TFunc()(node->data);
+                        error = f(node->data);
                         if (error != 0)
                         {
                             break;
@@ -833,7 +838,7 @@ namespace ft
             node = this->alloc.allocate(1);
             this->alloc.construct(node, node_type(this->nil(), data));
             node->parent = parent;
-            if (parent == this->root() || key_compare()(key_selector()(data), key_selector()(parent->data)))
+            if (parent == this->root() || this->comp(key_selector()(data), key_selector()(parent->data)))
             {
                 parent->left = node;
             }
@@ -843,6 +848,7 @@ namespace ft
             }
 
             repair_after_insert(node);
+            this->count++;
 
             return true;
         }
@@ -906,6 +912,37 @@ namespace ft
             }
             this->alloc.destroy(z);
             this->alloc.deallocate(z, 1);
+            this->count--;
+        }
+
+        friend bool operator==(const _tree& lhs, const _tree& rhs)
+        {
+            return lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+        }
+
+        friend bool operator!=(const _tree& lhs, const _tree& rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        friend bool operator<(const _tree& lhs, const _tree& rhs)
+        {
+            return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+
+        friend bool operator<=(const _tree& lhs, const _tree& rhs)
+        {
+            return !(rhs < lhs);
+        }
+
+        friend bool operator>(const _tree& lhs, const _tree& rhs)
+        {
+            return rhs < lhs;
+        }
+
+        friend bool operator>=(const _tree& lhs, const _tree& rhs)
+        {
+            return !(lhs < rhs);
         }
     };
 }

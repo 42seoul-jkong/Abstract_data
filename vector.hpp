@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <cstddef>
-#include <memory>
-
 #include <iterator.hpp>
 #include <iterator/_pointer_iterator.hpp>
+
+#include <cstddef>
+#include <memory>
 
 namespace ft
 {
@@ -29,9 +29,10 @@ namespace ft
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
     private:
-        pointer _start;
-        size_type _length;
-        size_type _capacity;
+        pointer start;
+        size_type length;
+        size_type capacity;
+        allocator_type alloc;
 
     public:
         vector();
@@ -88,36 +89,36 @@ namespace ft
 
     template <class T, class TAlloc>
     inline bool operator==(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline bool operator!=(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline bool operator<(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline bool operator<=(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline bool operator>(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline bool operator>=(
-        const std::vector<T, TAlloc>& lhs,
-        const std::vector<T, TAlloc>& rhs);
+        const vector<T, TAlloc>& lhs,
+        const vector<T, TAlloc>& rhs);
 
     template <class T, class TAlloc>
     inline void swap(
-        std::vector<T, TAlloc>& lhs,
-        std::vector<T, TAlloc>& rhs);
+        vector<T, TAlloc>& lhs,
+        vector<T, TAlloc>& rhs);
 }
