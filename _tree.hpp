@@ -48,6 +48,22 @@ namespace ft
             this->color = that.color;
             return *this;
         }
+
+        void change_nil(const _node_data* old_nil, _node_data* new_nil)
+        {
+            if (this->left == old_nil)
+            {
+                this->left = new_nil;
+            }
+            if (this->right == old_nil)
+            {
+                this->right = new_nil;
+            }
+            if (this->parent == old_nil)
+            {
+                this->parent = new_nil;
+            }
+        }
     };
 
     enum _tree_traversal
@@ -246,23 +262,26 @@ namespace ft
 
     public:
         _tree(const TComp& comp = TComp(), const TAlloc& alloc = TAlloc())
-            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(comp), alloc(alloc) {}
+            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(comp), alloc(alloc), count() {}
 
         _tree(const _tree& that)
-            : nilNode(&this->nilNode), rootNode(&this->nilNode), alloc(that.alloc)
+            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(that.comp), alloc(that.alloc), count(that.count)
         {
             this->first() = this->copy(that.first(), this->root(), that.nil());
         }
 
         ~_tree()
         {
-            this->destroy(this->first());
+            this->clear();
         }
 
         _tree& operator=(const _tree& that)
         {
-            this->destroy(this->first());
+            this->clear();
             this->first() = this->copy(that.first(), this->root(), that.nil());
+            this->comp = that.comp;
+            this->alloc = that.alloc;
+            this->count = that.count;
             return *this;
         }
 
@@ -496,9 +515,20 @@ namespace ft
                 node->parent = parent;
                 node->left = this->copy(that->left, node, that_nil);
                 node->right = this->copy(that->right, node, that_nil);
+                node->change_nil(that_nil, this->nil());
                 return node;
             }
             return this->nil();
+        }
+
+        void change_nil(node_type* node, const node_type* old_nil, node_type* new_nil)
+        {
+            if (node != old_nil && node != new_nil)
+            {
+                this->change_nil(node->left, old_nil, new_nil);
+                this->change_nil(node->right, old_nil, new_nil);
+                node->change_nil(old_nil, new_nil);
+            }
         }
 
         void destroy(node_type* node)
@@ -515,11 +545,11 @@ namespace ft
     public:
         iterator begin()
         {
-            return iterator(this, this->minimum());
+            return iterator(this, this->minimum(first()));
         }
         const_iterator begin() const
         {
-            return const_iterator(this, this->minimum());
+            return const_iterator(this, this->minimum(first()));
         }
 
         iterator end()
@@ -594,18 +624,16 @@ namespace ft
             }
         }
 
-        node_type* minimum()
+        node_type* minimum(node_type* node)
         {
-            node_type* node = first();
             while (node->left != this->nil())
             {
                 node = node->left;
             }
             return node;
         }
-        const node_type* minimum() const
+        const node_type* minimum(const node_type* node) const
         {
-            const node_type* node = first();
             while (node->left != this->nil())
             {
                 node = node->left;
@@ -613,18 +641,16 @@ namespace ft
             return node;
         }
 
-        node_type* maximum()
+        node_type* maximum(node_type* node)
         {
-            node_type* node = first();
             while (node->right != this->nil())
             {
                 node = node->right;
             }
             return node;
         }
-        const node_type* maximum() const
+        const node_type* maximum(const node_type* node) const
         {
-            const node_type* node = first();
             while (node->right != this->nil())
             {
                 node = node->right;
@@ -683,7 +709,7 @@ namespace ft
         {
             if (node == NULL)
             {
-                return maximum();
+                return maximum(first());
             }
             node_type* pred = node->left;
             if (pred != this->nil())
@@ -706,7 +732,7 @@ namespace ft
         {
             if (node == NULL)
             {
-                return maximum();
+                return maximum(first());
             }
             const node_type* pred = node->left;
             if (pred != this->nil())
@@ -913,6 +939,22 @@ namespace ft
             this->alloc.destroy(z);
             this->alloc.deallocate(z, 1);
             this->count--;
+        }
+
+        void clear()
+        {
+            this->destroy(this->first());
+            this->first() = this->nil();
+        }
+
+        void move(_tree& that)
+        {
+            std::swap(this->first(), that.first());
+            that.change_nil(that.root(), this->nil(), that.nil());
+            this->change_nil(this->root(), that.nil(), this->nil());
+            std::swap(this->comp, that.comp);
+            std::swap(this->alloc, that.alloc);
+            std::swap(this->count, that.count);
         }
 
         friend bool operator==(const _tree& lhs, const _tree& rhs)
