@@ -25,12 +25,12 @@ namespace ft
         T data;
         _node_color color;
 
-        _node_data(_node_data* nil)
-            : left(nil), right(nil), parent(nil),
+        _node_data()
+            : left(), right(), parent(),
               data(), color(black) {}
 
-        _node_data(_node_data* nil, const T& data)
-            : left(nil), right(nil), parent(nil),
+        _node_data(const T& data)
+            : left(), right(), parent(),
               data(data), color(red) {}
 
         _node_data(const _node_data& that)
@@ -47,22 +47,6 @@ namespace ft
             this->data = that.data;
             this->color = that.color;
             return *this;
-        }
-
-        void change_nil(const _node_data* old_nil, _node_data* new_nil)
-        {
-            if (this->left == old_nil)
-            {
-                this->left = new_nil;
-            }
-            if (this->right == old_nil)
-            {
-                this->right = new_nil;
-            }
-            if (this->parent == old_nil)
-            {
-                this->parent = new_nil;
-            }
         }
     };
 
@@ -250,10 +234,7 @@ namespace ft
         typedef ft::reverse_iterator<const_iterator> reverse_const_iterator;
 
     private:
-        // Sentinel nil
         node_type nilNode;
-
-        // Fake root
         node_type rootNode;
 
         key_compare comp;
@@ -262,12 +243,23 @@ namespace ft
 
     public:
         _tree(const TComp& comp = TComp(), const TAlloc& alloc = TAlloc())
-            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(comp), alloc(alloc), count() {}
+            : nilNode(), rootNode(), comp(comp), alloc(alloc), count()
+        {
+            // Make sentinel node
+            this->nilNode.parent = &this->nilNode;
+            this->nilNode.left = &this->nilNode;
+            this->nilNode.right = &this->nilNode;
+        }
 
         _tree(const _tree& that)
-            : nilNode(&this->nilNode), rootNode(&this->nilNode), comp(that.comp), alloc(that.alloc), count(that.count)
+            : nilNode(), rootNode(), comp(that.comp), alloc(that.alloc), count(that.count)
         {
-            this->first() = this->copy(that.first(), this->root(), that.nil());
+            // Make sentinel node
+            this->nilNode.parent = &this->nilNode;
+            this->nilNode.left = &this->nilNode;
+            this->nilNode.right = &this->nilNode;
+
+            this->first() = this->copy(that.first(), this->root());
         }
 
         ~_tree()
@@ -278,7 +270,7 @@ namespace ft
         _tree& operator=(const _tree& that)
         {
             this->clear();
-            this->first() = this->copy(that.first(), this->root(), that.nil());
+            this->first() = this->copy(that.first(), this->root());
             this->comp = that.comp;
             this->alloc = that.alloc;
             this->count = that.count;
@@ -291,7 +283,7 @@ namespace ft
             node = this->first();
             parent = this->root();
 
-            while (node != this->nil())
+            while (node != NULL)
             {
                 parent = node;
                 if (key == key_selector()(node->data))
@@ -314,7 +306,7 @@ namespace ft
             node = this->first();
             parent = this->root();
 
-            while (node != this->nil())
+            while (node != NULL)
             {
                 parent = node;
                 if (key == key_selector()(node->data))
@@ -338,7 +330,7 @@ namespace ft
             node_type* child = node->right;
             node->right = child->left;
 
-            if (child->left != this->nil())
+            if (child->left != NULL)
             {
                 child->left->parent = node;
             }
@@ -361,7 +353,7 @@ namespace ft
             node_type* child = node->left;
             node->left = child->right;
 
-            if (child->right != this->nil())
+            if (child->right != NULL)
             {
                 child->right->parent = node;
             }
@@ -387,7 +379,7 @@ namespace ft
             {
                 if (node->parent == node->parent->parent->left)
                 {
-                    uncle = node->parent->parent->right;
+                    uncle = safe(node->parent->parent->right);
                     if (uncle->color == red)
                     {
                         node->parent->color = black;
@@ -409,7 +401,7 @@ namespace ft
                 }
                 else // if (node->parent == node->parent->parent->right)
                 {
-                    uncle = node->parent->parent->left;
+                    uncle = safe(node->parent->parent->left);
                     if (uncle->color == red)
                     {
                         node->parent->color = black;
@@ -442,7 +434,7 @@ namespace ft
             {
                 if (node == node->parent->left)
                 {
-                    sibling = node->parent->right;
+                    sibling = safe(node->parent->right);
                     if (sibling->color == red)
                     {
                         sibling->color = black;
@@ -473,7 +465,7 @@ namespace ft
                 }
                 else // if (node == node->parent->right)
                 {
-                    sibling = node->parent->left;
+                    sibling = safe(node->parent->left);
                     if (sibling->color == red)
                     {
                         sibling->color = black;
@@ -506,34 +498,23 @@ namespace ft
             node->color = black;
         }
 
-        node_type* copy(const node_type* that, node_type* parent, const node_type* that_nil)
+        node_type* copy(const node_type* that, node_type* parent)
         {
-            if (that != that_nil)
+            if (that != NULL)
             {
                 node_type* node = this->alloc.allocate(1);
                 this->alloc.construct(node, *that);
                 node->parent = parent;
-                node->left = this->copy(that->left, node, that_nil);
-                node->right = this->copy(that->right, node, that_nil);
-                node->change_nil(that_nil, this->nil());
+                node->left = this->copy(that->left, node);
+                node->right = this->copy(that->right, node);
                 return node;
             }
-            return this->nil();
-        }
-
-        void change_nil(node_type* node, const node_type* old_nil, node_type* new_nil)
-        {
-            if (node != old_nil && node != new_nil)
-            {
-                this->change_nil(node->left, old_nil, new_nil);
-                this->change_nil(node->right, old_nil, new_nil);
-                node->change_nil(old_nil, new_nil);
-            }
+            return NULL;
         }
 
         void destroy(node_type* node)
         {
-            if (node != this->nil())
+            if (node != NULL)
             {
                 this->destroy(node->left);
                 this->destroy(node->right);
@@ -554,11 +535,11 @@ namespace ft
 
         iterator end()
         {
-            return iterator(this, NULL);
+            return iterator(this, &this->nilNode);
         }
         const_iterator end() const
         {
-            return const_iterator(this, NULL);
+            return const_iterator(this, &this->nilNode);
         }
 
         reverse_iterator rbegin()
@@ -581,7 +562,7 @@ namespace ft
 
         bool empty() const
         {
-            return this->rootNode.left == &this->nilNode && this->rootNode.right == &this->nilNode;
+            return this->rootNode.left == NULL && this->rootNode.right == NULL;
         }
 
         size_type size() const { return this->count; }
@@ -592,41 +573,43 @@ namespace ft
         node_type* root() { return &this->rootNode; }
         const node_type* root() const { return &this->rootNode; }
 
-        node_type* nil() { return &this->nilNode; }
-        const node_type* nil() const { return &this->nilNode; }
+        node_type* safe(node_type* node)
+        {
+            if (node != NULL)
+            {
+                return node;
+            }
+            return &this->nilNode;
+        }
+        const node_type* safe(const node_type* node) const
+        {
+            if (node != NULL)
+            {
+                return node;
+            }
+            return &this->nilNode;
+        }
 
         node_type* find(const key_type& key)
         {
             node_type* node;
             node_type* parent;
 
-            if (try_find(key, node, parent))
-            {
-                return node;
-            }
-            else
-            {
-                return NULL;
-            }
+            try_find(key, node, parent);
+            return node;
         }
         const node_type* find(const key_type& key) const
         {
             const node_type* node;
             const node_type* parent;
 
-            if (try_find(key, node, parent))
-            {
-                return node;
-            }
-            else
-            {
-                return NULL;
-            }
+            try_find(key, node, parent);
+            return node;
         }
 
         node_type* minimum(node_type* node)
         {
-            while (node->left != this->nil())
+            while (node->left != NULL)
             {
                 node = node->left;
             }
@@ -634,7 +617,7 @@ namespace ft
         }
         const node_type* minimum(const node_type* node) const
         {
-            while (node->left != this->nil())
+            while (node->left != NULL)
             {
                 node = node->left;
             }
@@ -643,7 +626,7 @@ namespace ft
 
         node_type* maximum(node_type* node)
         {
-            while (node->right != this->nil())
+            while (node->right != NULL)
             {
                 node = node->right;
             }
@@ -651,7 +634,7 @@ namespace ft
         }
         const node_type* maximum(const node_type* node) const
         {
-            while (node->right != this->nil())
+            while (node->right != NULL)
             {
                 node = node->right;
             }
@@ -661,9 +644,9 @@ namespace ft
         node_type* successor(node_type* node)
         {
             node_type* succ = node->right;
-            if (succ != this->nil())
+            if (succ != NULL)
             {
-                while (succ->left != this->nil())
+                while (succ->left != NULL)
                 {
                     succ = succ->left;
                 }
@@ -676,7 +659,7 @@ namespace ft
                 }
                 if (succ == this->root())
                 {
-                    succ = NULL;
+                    succ = &this->nilNode;
                 }
             }
             return succ;
@@ -684,9 +667,9 @@ namespace ft
         const node_type* successor(const node_type* node) const
         {
             const node_type* succ = node->right;
-            if (succ != this->nil())
+            if (succ != NULL)
             {
-                while (succ->left != this->nil())
+                while (succ->left != NULL)
                 {
                     succ = succ->left;
                 }
@@ -699,7 +682,7 @@ namespace ft
                 }
                 if (succ == this->root())
                 {
-                    succ = NULL;
+                    succ = &this->nilNode;
                 }
             }
             return succ;
@@ -707,14 +690,15 @@ namespace ft
 
         node_type* predecessor(node_type* node)
         {
-            if (node == NULL)
+            if (node == &this->nilNode)
             {
                 return maximum(first());
             }
+
             node_type* pred = node->left;
-            if (pred != this->nil())
+            if (pred != NULL)
             {
-                while (pred->right != this->nil())
+                while (pred->right != NULL)
                 {
                     pred = pred->right;
                 }
@@ -730,14 +714,15 @@ namespace ft
         }
         const node_type* predecessor(const node_type* node) const
         {
-            if (node == NULL)
+            if (node == &this->nilNode)
             {
                 return maximum(first());
             }
+
             const node_type* pred = node->left;
-            if (pred != this->nil())
+            if (pred != NULL)
             {
-                while (pred->right != this->nil())
+                while (pred->right != NULL)
                 {
                     pred = pred->right;
                 }
@@ -761,7 +746,7 @@ namespace ft
 
             do
             {
-                if (node != this->nil())
+                if (node != NULL)
                 {
                     if (order == preorder)
                     {
@@ -810,7 +795,7 @@ namespace ft
 
             do
             {
-                if (node != this->nil())
+                if (node != NULL)
                 {
                     if (order == preorder)
                     {
@@ -862,7 +847,7 @@ namespace ft
             }
 
             node = this->alloc.allocate(1);
-            this->alloc.construct(node, node_type(this->nil(), data));
+            this->alloc.construct(node, node_type(data));
             node->parent = parent;
             if (parent == this->root() || this->comp(key_selector()(data), key_selector()(parent->data)))
             {
@@ -883,7 +868,7 @@ namespace ft
         {
             node_type *x, *y;
 
-            if (z->left == this->nil() || z->right == this->nil())
+            if (z->left == NULL || z->right == NULL)
             {
                 y = z;
             }
@@ -891,7 +876,7 @@ namespace ft
             {
                 y = this->successor(z);
             }
-            if (y->left != this->nil())
+            if (y->left != NULL)
             {
                 x = y->left;
             }
@@ -900,8 +885,8 @@ namespace ft
                 x = y->right;
             }
 
-            x->parent = y->parent;
-            if (x->parent == this->root())
+            safe(x)->parent = y->parent;
+            if (safe(x)->parent == this->root())
             {
                 this->first() = x;
             }
@@ -918,7 +903,7 @@ namespace ft
             }
             if (y->color == black)
             {
-                this->repair_before_delete(x);
+                this->repair_before_delete(safe(x));
             }
             if (y != z)
             {
@@ -944,14 +929,12 @@ namespace ft
         void clear()
         {
             this->destroy(this->first());
-            this->first() = this->nil();
+            this->first() = NULL;
         }
 
         void move(_tree& that)
         {
             std::swap(this->first(), that.first());
-            that.change_nil(that.root(), this->nil(), that.nil());
-            this->change_nil(this->root(), that.nil(), this->nil());
             std::swap(this->comp, that.comp);
             std::swap(this->alloc, that.alloc);
             std::swap(this->count, that.count);
