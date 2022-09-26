@@ -8,21 +8,21 @@
 namespace ft
 {
     // Default
-    template <class T>
+    template <typename T>
     struct is_integral : public ft::false_type
     {
     };
 
     // Remove cv-qualified variants
-    template <class T>
+    template <typename T>
     struct is_integral<const T> : public is_integral<T>
     {
     };
-    template <class T>
+    template <typename T>
     struct is_integral<volatile const T> : public is_integral<T>
     {
     };
-    template <class T>
+    template <typename T>
     struct is_integral<volatile T> : public is_integral<T>
     {
     };

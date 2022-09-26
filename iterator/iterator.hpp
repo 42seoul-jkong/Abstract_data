@@ -8,11 +8,11 @@
 namespace ft
 {
     template <
-        class TIterCat,
-        class T,
-        class TDistance = std::ptrdiff_t,
-        class TPointer = T*,
-        class TReference = T&>
+        typename TIterCat,
+        typename T,
+        typename TDistance = std::ptrdiff_t,
+        typename TPointer = T*,
+        typename TReference = T&>
     struct iterator
     {
         typedef TIterCat iterator_category;

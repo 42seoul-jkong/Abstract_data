@@ -10,7 +10,7 @@
 
 namespace ft
 {
-    template <class TIter>
+    template <typename TIter>
     class reverse_iterator
         : public iterator<typename iterator_traits<TIter>::iterator_category,
                           typename iterator_traits<TIter>::value_type,

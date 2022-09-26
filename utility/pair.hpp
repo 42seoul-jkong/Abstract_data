@@ -26,7 +26,7 @@ namespace ft
         }
     };
 
-    template <class TFirst, class TSecond>
+    template <typename TFirst, typename TSecond>
     inline pair<TFirst, TSecond> make_pair(
         TFirst first, TSecond second)
     {

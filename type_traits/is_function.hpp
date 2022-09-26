@@ -9,7 +9,7 @@
 
 namespace ft
 {
-    template <class T>
+    template <typename T>
     struct is_function
         : ft::integral_constant<
               bool,

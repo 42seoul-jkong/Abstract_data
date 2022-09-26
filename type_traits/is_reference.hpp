@@ -8,13 +8,13 @@
 namespace ft
 {
     // Default
-    template <class T>
+    template <typename T>
     struct is_reference : public ft::false_type
     {
     };
 
     // Reference
-    template <class T>
+    template <typename T>
     struct is_reference<T&> : public ft::true_type
     {
     };

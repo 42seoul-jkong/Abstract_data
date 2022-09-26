@@ -5,7 +5,7 @@
 
 namespace ft
 {
-    template <class T, T Value>
+    template <typename T, T Value>
     struct integral_constant
     {
         typedef T value_type;
@@ -15,7 +15,7 @@ namespace ft
         operator T() const { return Value; }
     };
 
-    template <class T, T Value>
+    template <typename T, T Value>
     T const integral_constant<T, Value>::value;
 
     typedef integral_constant<bool, true> true_type;

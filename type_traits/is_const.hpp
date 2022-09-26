@@ -8,13 +8,13 @@
 namespace ft
 {
     // Default
-    template <class T>
+    template <typename T>
     struct is_const : public ft::false_type
     {
     };
 
     // Reference
-    template <class T>
+    template <typename T>
     struct is_const<const T> : public ft::true_type
     {
     };

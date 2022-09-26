@@ -5,13 +5,13 @@
 
 namespace ft
 {
-    template <bool B, class T = void>
+    template <bool B, typename T = void>
     struct enable_if
     {
         typedef T type;
     };
 
-    template <class T>
+    template <typename T>
     struct enable_if<false, T>
     {
     };

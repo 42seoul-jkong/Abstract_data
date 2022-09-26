@@ -36,14 +36,14 @@ namespace ft
 
     public:
         vector();
-        explicit vector(const TAlloc& alloc);
-        explicit vector(size_type count, const T& value = T(), const TAlloc& alloc = TAlloc());
+        explicit vector(const allocator_type& alloc);
+        explicit vector(size_type count, const value_type& value = value_type(), const allocator_type& alloc = allocator_type());
         template <class UIter>
-        vector(UIter first, UIter last, const TAlloc& alloc = TAlloc());
+        vector(UIter first, UIter last, const allocator_type& alloc = allocator_type());
         vector(const vector& that);
         ~vector();
         vector& operator=(const vector& that);
-        void assign(size_type count, const T& value);
+        void assign(size_type count, const value_type& value);
         template <class UIter>
         void assign(UIter first, UIter last);
         allocator_type get_allocator() const;
@@ -75,49 +75,49 @@ namespace ft
         size_type capacity() const;
 
         void clear();
-        iterator insert(iterator pos, const T& value);
-        void insert(iterator pos, size_type count, const T& value);
+        iterator insert(iterator pos, const value_type& value);
+        void insert(iterator pos, size_type count, const value_type& value);
         template <class UIter>
         void insert(iterator pos, UIter first, UIter last);
         iterator erase(iterator pos);
         iterator erase(iterator first, iterator last);
-        void push_back(const T& value);
+        void push_back(const value_type& value);
         void pop_back();
-        void resize(size_type count, T value = T());
+        void resize(size_type count, value_type value = value_type());
         void swap(vector& that);
     };
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator==(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator!=(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator<(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator<=(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator>(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline bool operator>=(
         const vector<T, TAlloc>& lhs,
         const vector<T, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename T, typename TAlloc>
     inline void swap(
         vector<T, TAlloc>& lhs,
         vector<T, TAlloc>& rhs);

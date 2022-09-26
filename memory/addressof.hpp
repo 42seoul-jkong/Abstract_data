@@ -7,7 +7,7 @@
 
 namespace ft
 {
-    template <class T>
+    template <typename T>
     typename ft::enable_if<ft::is_object<T>::value, T*>::type addressof(T& arg) throw()
     {
         return reinterpret_cast<T*>(
@@ -15,7 +15,7 @@ namespace ft
                 reinterpret_cast<const volatile char&>(arg)));
     }
 
-    template <class T>
+    template <typename T>
     typename ft::enable_if<!ft::is_object<T>::value, T*>::type addressof(T& arg) throw()
     {
         return &arg;

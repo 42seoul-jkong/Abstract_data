@@ -12,7 +12,7 @@
 
 namespace ft
 {
-    template <class TIter, class _TCont>
+    template <typename TIter, typename _TCont>
     struct _pointer_iterator
     {
     protected:

@@ -5,7 +5,7 @@
 
 namespace ft
 {
-    template <class TIterFirst, class TIterSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool
     lexicographical_compare(
         TIterFirst first1, TIterFirst last1,
@@ -21,7 +21,7 @@ namespace ft
         return (first1 == last1) && (first2 != last2);
     }
 
-    template <class TIterFirst, class TIterSecond, class TComp>
+    template <typename TIterFirst, typename TIterSecond, typename TComp>
     inline bool
     lexicographical_compare(
         TIterFirst first1, TIterFirst last1,

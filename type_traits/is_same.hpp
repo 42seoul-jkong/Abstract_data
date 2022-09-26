@@ -8,13 +8,13 @@
 namespace ft
 {
     // Default
-    template <class T, class U>
+    template <typename T, typename U>
     struct is_same : public false_type
     {
     };
 
     // Same
-    template <class T>
+    template <typename T>
     struct is_same<T, T> : public true_type
     {
     };

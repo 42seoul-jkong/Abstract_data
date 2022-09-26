@@ -5,7 +5,7 @@
 
 namespace ft
 {
-    template <class TIterFirst, class TIterSecond>
+    template <typename TIterFirst, typename TIterSecond>
     inline bool
     equal(
         TIterFirst first1, TIterFirst last1,
@@ -21,7 +21,7 @@ namespace ft
         return true;
     }
 
-    template <class TIterFirst, class TIterSecond, class TBinaryPredicate>
+    template <typename TIterFirst, typename TIterSecond, typename TBinaryPredicate>
     inline bool
     equal(
         TIterFirst first1, TIterFirst last1,

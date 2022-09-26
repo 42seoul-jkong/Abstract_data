@@ -8,7 +8,7 @@
 namespace ft
 {
     // Default
-    template <class T>
+    template <typename T>
     struct is_void : public ft::false_type
     {
     };

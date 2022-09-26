@@ -44,8 +44,8 @@ namespace ft
         typedef typename allocator_type::const_pointer const_pointer;
         typedef typename container_type::iterator iterator;
         typedef typename container_type::const_iterator const_iterator;
-        typedef typename container_type::reverse_iterator reverse_iterator;
-        typedef typename container_type::const_reverse_iterator const_reverse_iterator;
+        typedef typename ft::reverse_iterator<iterator> reverse_iterator;
+        typedef typename ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
         class value_compare
         {
@@ -73,9 +73,9 @@ namespace ft
 
     public:
         map();
-        explicit map(const TComp& comp, const TAlloc& alloc = TAlloc());
+        explicit map(const key_compare& comp, const allocator_type& alloc = allocator_type());
         template <class UIter>
-        map(UIter first, UIter last, const TComp& comp = TComp(), const TAlloc& alloc = TAlloc());
+        map(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type());
         map(const map& that);
         ~map();
         map& operator=(const map& that);
@@ -99,12 +99,12 @@ namespace ft
         size_type max_size() const;
 
         void clear();
-        iterator insert(iterator pos, const T& value);
-        void insert(iterator pos, size_type count, const T& value);
+        ft::pair<iterator, bool> insert(const value_type& value);
         template <class UIter>
-        void insert(iterator pos, UIter first, UIter last);
+        void insert(UIter first, UIter last);
         iterator erase(iterator pos);
         iterator erase(iterator first, iterator last);
+        size_type erase(const key_type& key);
         void swap(map& that);
 
         size_type count(const key_type& key) const;
@@ -121,38 +121,38 @@ namespace ft
         value_compare value_comp() const;
     };
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator==(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator!=(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator<(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator<=(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator>(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline bool operator>=(
-        const map<T, TAlloc>& lhs,
-        const map<T, TAlloc>& rhs);
+        const map<TKey, TMapped, TComp, TAlloc>& lhs,
+        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
-    template <class T, class TAlloc>
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline void swap(
-        map<T, TAlloc>& lhs,
-        map<T, TAlloc>& rhs);
+        map<TKey, TMapped, TComp, TAlloc>& lhs,
+        map<TKey, TMapped, TComp, TAlloc>& rhs);
 }
