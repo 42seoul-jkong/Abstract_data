@@ -7,8 +7,10 @@
 #include <utility.hpp>
 
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <memory>
+#include <string>
 
 namespace ft
 {
@@ -49,6 +51,8 @@ namespace ft
 
         class value_compare
         {
+            friend class map;
+
         public:
             typedef bool result_type;
             typedef value_type first_argument_type;
@@ -63,96 +67,235 @@ namespace ft
         public:
             result_type operator()(const first_argument_type& lhs, const second_argument_type& rhs)
             {
-                return this->comp(key_select()(lhs), key_select()(rhs.first));
+                return this->comp(key_select()(lhs), key_select()(rhs));
             }
         };
 
     private:
         container_type c;
-        allocator_type alloc;
 
     public:
-        map();
-        explicit map(const key_compare& comp, const allocator_type& alloc = allocator_type());
+        map()
+            : c() {}
+
+        explicit map(const key_compare& comp, const allocator_type& alloc = allocator_type())
+            : c(comp, alloc) {}
+
         template <class UIter>
-        map(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type());
-        map(const map& that);
-        ~map();
-        map& operator=(const map& that);
-        allocator_type get_allocator() const;
+        map(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+            : c(comp, alloc)
+        {
+            this->insert(first, last);
+        }
 
-        reference at(const key_type& key);
-        const_reference at(const key_type& key) const;
-        reference operator[](const key_type& key);
+        map(const map& that)
+            : c(that.c) {}
 
-        iterator begin();
-        const_iterator begin() const;
-        iterator end();
-        const_iterator end() const;
-        reverse_iterator rbegin();
-        const_reverse_iterator rbegin() const;
-        reverse_iterator rend();
-        const_reverse_iterator rend() const;
+        ~map() {}
 
-        bool empty() const;
-        size_type size() const;
-        size_type max_size() const;
+        map& operator=(const map& that)
+        {
+            this->c = that.c;
+            return *this;
+        }
 
-        void clear();
-        ft::pair<iterator, bool> insert(const value_type& value);
+    public:
+        allocator_type get_allocator() const { return allocator_type(this->c.get_allocator()); }
+
+    public:
+        mapped_type& at(const key_type& key)
+        {
+            typename container_type::node_type* node = this->c.find(key);
+            if (node == NULL)
+            {
+                throw std::out_of_range(std::string("map::at"));
+            }
+            return node->data.second;
+        }
+        const mapped_type& at(const key_type& key) const
+        {
+            typename container_type::node_type* node = this->c.find(key);
+            if (node == NULL)
+            {
+                throw std::out_of_range(std::string("map::at"));
+            }
+            return node->data.second;
+        }
+        mapped_type& operator[](const key_type& key)
+        {
+            typename container_type::node_type* node = this->c.find(key);
+            if (node == NULL)
+            {
+                node = this->c.insert_node(ft::make_pair(key, mapped_type())).first.base();
+            }
+            return node->data.second;
+        }
+
+    public:
+        iterator begin() { return this->c.begin(); }
+        const_iterator begin() const { return this->c.begin(); }
+        iterator end() { return this->c.end(); }
+        const_iterator end() const { return this->c.end(); }
+        reverse_iterator rbegin() { return this->c.rbegin(); }
+        const_reverse_iterator rbegin() const { return this->c.rbegin(); }
+        reverse_iterator rend() { return this->c.rend(); }
+        const_reverse_iterator rend() const { return this->c.rend(); }
+
+    public:
+        bool empty() const { return this->c.empty(); }
+        size_type size() const { return this->c.size(); }
+        size_type max_size() const { return this->c.max_size(); }
+
+    public:
+        void clear() { return this->c.clear(); }
+
+        ft::pair<iterator, bool> insert(const value_type& value) { return this->c.insert_node(value); }
+
+        iterator insert(iterator hint, const value_type& value)
+        {
+            (void)&hint;
+            return this->c.insert_node(value).first;
+        }
+
         template <class UIter>
-        void insert(UIter first, UIter last);
-        iterator erase(iterator pos);
-        iterator erase(iterator first, iterator last);
-        size_type erase(const key_type& key);
-        void swap(map& that);
+        void insert(UIter first, UIter last)
+        {
+            for (; first != last; ++first)
+            {
+                this->c.insert_node(*first);
+            }
+        }
 
-        size_type count(const key_type& key) const;
-        iterator find(const key_type& key);
-        const_iterator find(const key_type& key) const;
-        ft::pair<iterator, iterator> equal_range(const key_type& key);
-        ft::pair<const_iterator, const_iterator> equal_range(const key_type& key) const;
-        iterator lower_bound(const key_type& key);
-        const_iterator lower_bound(const key_type& key) const;
-        iterator upper_bound(const key_type& key);
-        const_iterator upper_bound(const key_type& key) const;
+        iterator erase(iterator pos)
+        {
+            iterator it = pos++;
+            this->c.delete_node(it.base());
+            return pos;
+        }
 
-        key_compare key_comp() const;
-        value_compare value_comp() const;
+        iterator erase(iterator first, iterator last)
+        {
+            while (first != last)
+            {
+                iterator it = first++;
+                this->c.delete_node(it.base());
+            }
+            return last;
+        }
+
+        size_type erase(const key_type& key)
+        {
+            typename container_type::node_type* node = this->c.find(key);
+            if (node != NULL)
+            {
+                this->c.delete_node(node);
+                return 1;
+            }
+            return 0;
+        }
+
+        void swap(map& that) { this->c.swap(that.c); }
+
+    public:
+        size_type count(const key_type& key) const
+        {
+            const typename container_type::node_type* node = this->c.find(key);
+            if (node != NULL)
+            {
+                return 1;
+            }
+            return 0;
+        }
+
+        iterator find(const key_type& key)
+        {
+            return iterator(&this->c, this->c.find(key));
+        }
+        const_iterator find(const key_type& key) const
+        {
+            return const_iterator(&this->c, this->c.find(key));
+        }
+
+        ft::pair<iterator, iterator> equal_range(const key_type& key)
+        {
+            iterator first = iterator(&this->c, this->c.find(key));
+            iterator second = first;
+            if (second != this->c.end())
+            {
+                ++second;
+            }
+            return ft::make_pair(first, second);
+        }
+        ft::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
+        {
+            const_iterator first = const_iterator(&this->c, this->c.find(key));
+            const_iterator second = first;
+            if (second != this->c.end())
+            {
+                ++second;
+            }
+            return ft::make_pair(first, second);
+        }
+
+        iterator lower_bound(const key_type& key)
+        {
+            return iterator(&this->c, this->c.lower_bound(key));
+        }
+        const_iterator lower_bound(const key_type& key) const
+        {
+            return const_iterator(&this->c, this->c.lower_bound(key));
+        }
+
+        iterator upper_bound(const key_type& key)
+        {
+            return iterator(&this->c, this->c.upper_bound(key));
+        }
+        const_iterator upper_bound(const key_type& key) const
+        {
+            return const_iterator(&this->c, this->c.upper_bound(key));
+        }
+
+    public:
+        key_compare key_comp() const { return this->c.key_comp(); }
+        value_compare value_comp() const { return value_compare(this->c.key_comp()); }
+
+    public:
+        friend bool operator==(const map& lhs, const map& rhs)
+        {
+            return lhs.c == rhs.c;
+        }
+
+        friend bool operator!=(const map& lhs, const map& rhs)
+        {
+            return lhs.c != rhs.c;
+        }
+
+        friend bool operator<(const map& lhs, const map& rhs)
+        {
+            return lhs.c < rhs.c;
+        }
+
+        friend bool operator<=(const map& lhs, const map& rhs)
+        {
+            return lhs.c <= rhs.c;
+        }
+
+        friend bool operator>(const map& lhs, const map& rhs)
+        {
+            return lhs.c > rhs.c;
+        }
+
+        friend bool operator>=(const map& lhs, const map& rhs)
+        {
+            return lhs.c >= rhs.c;
+        }
     };
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator==(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator!=(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator<(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator<=(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator>(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
-
-    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
-    inline bool operator>=(
-        const map<TKey, TMapped, TComp, TAlloc>& lhs,
-        const map<TKey, TMapped, TComp, TAlloc>& rhs);
 
     template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
     inline void swap(
         map<TKey, TMapped, TComp, TAlloc>& lhs,
-        map<TKey, TMapped, TComp, TAlloc>& rhs);
+        map<TKey, TMapped, TComp, TAlloc>& rhs)
+    {
+        lhs.swap(rhs);
+    }
 }

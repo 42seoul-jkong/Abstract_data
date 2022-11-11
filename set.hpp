@@ -76,6 +76,7 @@ namespace ft
 
         void clear();
         ft::pair<iterator, bool> insert(const value_type& value);
+        iterator insert(iterator hint, const value_type& value);
         template <class UIter>
         void insert(UIter first, UIter last);
         iterator erase(iterator pos);

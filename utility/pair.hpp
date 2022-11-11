@@ -23,6 +23,7 @@ namespace ft
         {
             this->first = that.first;
             this->second = that.second;
+            return *this;
         }
     };
 
