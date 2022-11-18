@@ -105,30 +105,30 @@ namespace ft
     public:
         mapped_type& at(const key_type& key)
         {
-            typename container_type::node_type* node = this->c.find(key);
-            if (node == NULL)
+            iterator it = this->find(key);
+            if (it == this->end())
             {
-                throw std::out_of_range(std::string("map::at"));
+                throw std::out_of_range("map::at");
             }
-            return node->data.second;
+            return it->second;
         }
         const mapped_type& at(const key_type& key) const
         {
-            typename container_type::node_type* node = this->c.find(key);
-            if (node == NULL)
+            const_iterator it = this->find(key);
+            if (it == this->end())
             {
-                throw std::out_of_range(std::string("map::at"));
+                throw std::out_of_range("map::at");
             }
-            return node->data.second;
+            return it->second;
         }
         mapped_type& operator[](const key_type& key)
         {
-            typename container_type::node_type* node = this->c.find(key);
-            if (node == NULL)
+            iterator it = this->find(key);
+            if (it == this->end())
             {
-                node = this->c.insert_node(ft::make_pair(key, mapped_type())).first.base();
+                it = this->insert(ft::make_pair(key, mapped_type())).first;
             }
-            return node->data.second;
+            return it->second;
         }
 
     public:
@@ -149,27 +149,30 @@ namespace ft
     public:
         void clear() { return this->c.clear(); }
 
-        ft::pair<iterator, bool> insert(const value_type& value) { return this->c.insert_node(value); }
+        ft::pair<iterator, bool> insert(const value_type& value)
+        {
+            ft::pair<typename container_type::node_type*, bool> result = this->c.insert_unique(NULL, value);
+            return ft::make_pair(iterator(result.first), result.second);
+        }
 
         iterator insert(iterator hint, const value_type& value)
         {
-            (void)&hint;
-            return this->c.insert_node(value).first;
+            return iterator(this->c.insert_unique(hint.base(), value).first);
         }
 
         template <class UIter>
         void insert(UIter first, UIter last)
         {
-            for (; first != last; ++first)
+            for (UIter it = first; it != last; ++it)
             {
-                this->c.insert_node(*first);
+                this->c.insert_unique(NULL, *it);
             }
         }
 
         iterator erase(iterator pos)
         {
             iterator it = pos++;
-            this->c.delete_node(it.base());
+            this->c.erase(it.base());
             return pos;
         }
 
@@ -178,82 +181,38 @@ namespace ft
             while (first != last)
             {
                 iterator it = first++;
-                this->c.delete_node(it.base());
+                this->c.erase(it.base());
             }
             return last;
         }
 
         size_type erase(const key_type& key)
         {
-            typename container_type::node_type* node = this->c.find(key);
-            if (node != NULL)
+            iterator it = this->find(key);
+            if (it == this->end())
             {
-                this->c.delete_node(node);
-                return 1;
+                return 0;
             }
-            return 0;
+            this->erase(it);
+            return 1;
         }
 
         void swap(map& that) { this->c.swap(that.c); }
 
     public:
-        size_type count(const key_type& key) const
-        {
-            const typename container_type::node_type* node = this->c.find(key);
-            if (node != NULL)
-            {
-                return 1;
-            }
-            return 0;
-        }
+        size_type count(const key_type& key) const { return this->c.count(key); }
 
-        iterator find(const key_type& key)
-        {
-            return iterator(&this->c, this->c.find(key));
-        }
-        const_iterator find(const key_type& key) const
-        {
-            return const_iterator(&this->c, this->c.find(key));
-        }
+        iterator find(const key_type& key) { return iterator(this->c.find(key)); }
+        const_iterator find(const key_type& key) const { return const_iterator(this->c.find(key)); }
 
-        ft::pair<iterator, iterator> equal_range(const key_type& key)
-        {
-            iterator first = iterator(&this->c, this->c.find(key));
-            iterator second = first;
-            if (second != this->c.end())
-            {
-                ++second;
-            }
-            return ft::make_pair(first, second);
-        }
-        ft::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
-        {
-            const_iterator first = const_iterator(&this->c, this->c.find(key));
-            const_iterator second = first;
-            if (second != this->c.end())
-            {
-                ++second;
-            }
-            return ft::make_pair(first, second);
-        }
+        ft::pair<iterator, iterator> equal_range(const key_type& key) { return this->c.equal_range(key); }
+        ft::pair<const_iterator, const_iterator> equal_range(const key_type& key) const { return this->c.equal_range(key); }
 
-        iterator lower_bound(const key_type& key)
-        {
-            return iterator(&this->c, this->c.lower_bound(key));
-        }
-        const_iterator lower_bound(const key_type& key) const
-        {
-            return const_iterator(&this->c, this->c.lower_bound(key));
-        }
+        iterator lower_bound(const key_type& key) { return this->c.lower_bound(key); }
+        const_iterator lower_bound(const key_type& key) const { return this->c.lower_bound(key); }
 
-        iterator upper_bound(const key_type& key)
-        {
-            return iterator(&this->c, this->c.upper_bound(key));
-        }
-        const_iterator upper_bound(const key_type& key) const
-        {
-            return const_iterator(&this->c, this->c.upper_bound(key));
-        }
+        iterator upper_bound(const key_type& key) { return this->c.upper_bound(key); }
+        const_iterator upper_bound(const key_type& key) const { return this->c.upper_bound(key); }
 
     public:
         key_compare key_comp() const { return this->c.key_comp(); }
