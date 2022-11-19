@@ -12,7 +12,9 @@
 #include <limits>
 #include <memory>
 
+#ifdef FT_TREE_ASSERT
 #include <cassert>
+#endif
 
 namespace ft
 {
@@ -349,7 +351,7 @@ namespace ft
                         x_parent->color = red;
                         rotate_left(x_parent, sibling, x_parent->parent, header);
                         sibling = x_parent->right;
-                        assert(sibling != NULL);
+                        // assert(sibling != NULL);
                     }
 
                     node_pointer s_left = sibling->left;
@@ -368,6 +370,7 @@ namespace ft
                             sibling->color = red;
                             rotate_right(sibling, s_left, sibling->parent, header);
                             sibling = x_parent->right;
+                            // assert(sibling != NULL);
                         }
 
                         sibling->color = x_parent->color;
@@ -390,7 +393,7 @@ namespace ft
                         x_parent->color = red;
                         rotate_right(x_parent, sibling, x_parent->parent, header);
                         sibling = x_parent->left;
-                        assert(sibling != NULL);
+                        // assert(sibling != NULL);
                     }
 
                     node_pointer s_left = sibling->left;
@@ -409,6 +412,7 @@ namespace ft
                             sibling->color = red;
                             rotate_left(sibling, s_right, sibling->parent, header);
                             sibling = x_parent->left;
+                            // assert(sibling != NULL);
                         }
 
                         sibling->color = x_parent->color;
@@ -624,9 +628,7 @@ namespace ft
         _tree(const TComp& comp = TComp(), const TAlloc& alloc = TAlloc())
             : header(), comp(comp), alloc(alloc), number()
         {
-            this->header.left = this->end_node();
-            this->header.right = this->end_node();
-            this->header.parent = NULL;
+            this->reset();
         }
 
         _tree(const _tree& that)
@@ -688,10 +690,12 @@ namespace ft
                 }
             }
 
-            algo::repair_after_insert(this->end_node(), node);
+            algo::repair_after_insert(this->header_node(), node);
             this->number++;
 
+#ifdef FT_TREE_ASSERT
             this->validate();
+#endif
 
             return node;
         }
@@ -759,13 +763,18 @@ namespace ft
             return result;
         }
 
+        void reset()
+        {
+            this->header.left = this->end_node();
+            this->header.right = this->end_node();
+            this->header.parent = NULL;
+        }
+
         void copy(node_type* source)
         {
             if (source == NULL)
             {
-                this->header.left = this->end_node();
-                this->header.right = this->end_node();
-                this->header.parent = NULL;
+                this->reset();
                 return;
             }
 
@@ -854,6 +863,16 @@ namespace ft
             }
         }
 
+        node_type* header_node() { return &this->header; }
+        node_type* header_node() const { return const_cast<node_type*>(&this->header); }
+        node_type* root_node() { return this->header.parent; }
+        node_type* root_node() const { return this->header.parent; }
+        node_type* begin_node() { return this->header.left; }
+        node_type* begin_node() const { return this->header.left; }
+        node_type* end_node() { return this->header_node(); }
+        node_type* end_node() const { return this->header_node(); }
+
+#ifdef FT_TREE_ASSERT
         void validate()
         {
             assert(this->header.color == black);
@@ -889,15 +908,7 @@ namespace ft
             }
             return black_count;
         }
-
-        node_type* header_node() { return &this->header; }
-        node_type* header_node() const { return const_cast<node_type*>(&this->header); }
-        node_type* root_node() { return this->header.parent; }
-        node_type* root_node() const { return this->header.parent; }
-        node_type* begin_node() { return this->header.left; }
-        node_type* begin_node() const { return this->header.left; }
-        node_type* end_node() { return this->header_node(); }
-        node_type* end_node() const { return this->header_node(); }
+#endif
 
     public:
         iterator begin() { return iterator(this->begin_node()); }
@@ -916,9 +927,7 @@ namespace ft
         void clear()
         {
             this->destroy(this->root_node());
-            this->header.left = this->end_node();
-            this->header.right = this->end_node();
-            this->header.parent = NULL;
+            this->reset();
             this->number = size_type();
         }
 
@@ -1177,7 +1186,9 @@ namespace ft
             this->alloc.deallocate(z, 1);
             this->number--;
 
+#ifdef FT_TREE_ASSERT
             this->validate();
+#endif
         }
 
         void swap(_tree& that)
