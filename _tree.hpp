@@ -520,12 +520,12 @@ namespace ft
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef std::ptrdiff_t difference_type;
 
-        const typename TTree::node_type* p;
+        typename TTree::node_type* p;
 
         _tree_const_iterator() throw()
             : p() {}
 
-        explicit _tree_const_iterator(const typename TTree::node_type* p) throw()
+        explicit _tree_const_iterator(typename TTree::node_type* p) throw()
             : p(p) {}
 
         _tree_const_iterator(const _tree_const_iterator& that) throw()
@@ -540,7 +540,7 @@ namespace ft
             return *this;
         }
 
-        const typename TTree::node_type* base() const throw()
+        typename TTree::node_type* base() const throw()
         {
             return this->p;
         }
@@ -632,13 +632,13 @@ namespace ft
 
         ~_tree()
         {
-            this->destroy(this->header.parent);
+            this->destroy(this->root_node());
         }
 
         _tree& operator=(const _tree& that)
         {
-            this->destroy(this->header.parent);
-            this->copy(that.header.parent);
+            this->destroy(this->root_node());
+            this->copy(that.root_node());
             this->comp = that.comp;
             this->alloc = that.alloc;
             this->number = that.number;
@@ -656,7 +656,7 @@ namespace ft
             this->alloc.construct(node, node_type(data));
 
             node->parent = parent;
-            if (parent == &this->header)
+            if (parent == this->end_node())
             {
                 this->header.parent = node;
                 // update minimum
@@ -667,7 +667,7 @@ namespace ft
             else if (left)
             {
                 parent->left = node;
-                if (parent == this->header.left)
+                if (parent == this->begin_node())
                 {
                     // update minimum
                     this->header.left = node;
@@ -683,7 +683,7 @@ namespace ft
                 }
             }
 
-            algo::repair_after_insert(&this->header, node);
+            algo::repair_after_insert(this->end_node(), node);
             this->number++;
 
             this->validate();
@@ -691,10 +691,10 @@ namespace ft
             return node;
         }
 
-        ft::pair<const node_type*, const node_type*> equal_range_raw(const TKey& lower_key, const TKey& upper_key) const
+        ft::pair<node_type*, node_type*> equal_range_raw(const TKey& lower_key, const TKey& upper_key) const
         {
-            const node_type* x = this->header.parent;
-            const node_type* y = &this->header;
+            node_type* x = this->root_node();
+            node_type* y = this->header_node();
             while (x != NULL)
             {
                 if (this->comp(key_selector()(x->data), lower_key))
@@ -710,16 +710,16 @@ namespace ft
                 {
                     y = upper_bound_raw(x->right, y, upper_key);
                     x = lower_bound_raw(x->left, x, lower_key);
-                    return ft::make_pair<const node_type*, const node_type*>(x, y);
+                    return ft::make_pair<node_type*, node_type*>(x, y);
                 }
             }
-            return ft::make_pair<const node_type*, const node_type*>(y, y);
+            return ft::make_pair<node_type*, node_type*>(y, y);
         }
 
-        const node_type* lower_bound_raw(const node_type* begin, const node_type* end, const TKey& key) const
+        node_type* lower_bound_raw(node_type* begin, node_type* end, const TKey& key) const
         {
-            const node_type* it = begin;
-            const node_type* result = end;
+            node_type* it = begin;
+            node_type* result = end;
             while (it != NULL)
             {
                 if (!this->comp(key_selector()(it->data), key))
@@ -735,10 +735,10 @@ namespace ft
             return result;
         }
 
-        const node_type* upper_bound_raw(const node_type* begin, const node_type* end, const TKey& key) const
+        node_type* upper_bound_raw(node_type* begin, node_type* end, const TKey& key) const
         {
-            const node_type* it = begin;
-            const node_type* result = end;
+            node_type* it = begin;
+            node_type* result = end;
             while (it != NULL)
             {
                 if (this->comp(key, key_selector()(it->data)))
@@ -754,17 +754,17 @@ namespace ft
             return result;
         }
 
-        void copy(const node_type* source)
+        void copy(node_type* source)
         {
             if (source == NULL)
             {
                 this->header.left = NULL;
-                this->header.right = &this->header;
-                this->header.parent = &this->header;
+                this->header.right = this->end_node();
+                this->header.parent = this->end_node();
                 return;
             }
 
-            const node_type* src_current = source;
+            node_type* src_current = source;
             node_type* dest_current = this->alloc.allocate(1);
             this->alloc.construct(dest_current, *src_current);
 
@@ -774,7 +774,7 @@ namespace ft
 
             dest_current->left = NULL;
             dest_current->right = NULL;
-            dest_current->parent = &this->header;
+            dest_current->parent = this->end_node();
 
             for (;;)
             {
@@ -885,25 +885,34 @@ namespace ft
             return black_count;
         }
 
+        node_type* header_node() { return &this->header; }
+        node_type* header_node() const { return const_cast<node_type*>(&this->header); }
+        node_type* root_node() { return this->header.parent; }
+        node_type* root_node() const { return this->header.parent; }
+        node_type* begin_node() { return this->header.left; }
+        node_type* begin_node() const { return this->header.left; }
+        node_type* end_node() { return this->header_node(); }
+        node_type* end_node() const { return this->header_node(); }
+
     public:
-        iterator begin() { return iterator(this->header.left); }
-        const_iterator begin() const { return const_iterator(this->header.left); }
-        iterator end() { return iterator(&this->header); }
-        const_iterator end() const { return const_iterator(&this->header); }
+        iterator begin() { return iterator(this->begin_node()); }
+        const_iterator begin() const { return const_iterator(this->begin_node()); }
+        iterator end() { return iterator(this->end_node()); }
+        const_iterator end() const { return const_iterator(this->end_node()); }
         reverse_iterator rbegin() { return reverse_iterator(this->end()); }
         reverse_const_iterator rbegin() const { return reverse_const_iterator(this->end()); }
         reverse_iterator rend() { return reverse_iterator(this->begin()); }
         reverse_const_iterator rend() const { return reverse_const_iterator(this->begin()); }
 
-        bool empty() const { return this->header.parent == NULL; }
+        bool empty() const { return this->root_node() == NULL; }
         size_type size() const { return this->number; }
         size_type max_size() const { return std::numeric_limits<size_type>::max() / sizeof(node_type); }
 
         void clear()
         {
-            this->destroy(this->header.parent);
-            this->header.left = &this->header;
-            this->header.right = &this->header;
+            this->destroy(this->root_node());
+            this->header.left = this->header_node();
+            this->header.right = this->header_node();
             this->header.parent = NULL;
             this->number = size_type();
         }
@@ -911,17 +920,17 @@ namespace ft
         ft::pair<node_type*, bool> insert_unique(node_type* hint, const value_type& data)
         {
             const key_type& key = key_selector()(data);
-            node_type* parent = &this->header;
+            node_type* parent = this->end_node();
             bool left = true;
 
             do
             {
                 if (hint != NULL)
                 {
-                    if (hint == &this->header || this->comp(key, key_selector()(hint->data)))
+                    if (hint == this->end_node() || this->comp(key, key_selector()(hint->data)))
                     {
                         node_type* hint_prev;
-                        if (hint == this->header.left)
+                        if (hint == this->begin_node())
                         {
                             hint_prev = NULL;
                         }
@@ -931,7 +940,7 @@ namespace ft
                         }
                         if (hint_prev == NULL || this->comp(key_selector()(hint_prev->data), key))
                         {
-                            left = this->header.parent == NULL || hint->left == NULL;
+                            left = this->root_node() == NULL || hint->left == NULL;
                             if (left)
                             {
                                 parent = hint;
@@ -945,8 +954,8 @@ namespace ft
                     }
                 }
 
-                node_type* it = this->header.parent;
-                node_type* result = &this->header;
+                node_type* it = this->root_node();
+                node_type* result = this->header_node();
                 while (it != NULL)
                 {
                     parent = it;
@@ -961,7 +970,7 @@ namespace ft
                         it = it->right;
                     }
                 }
-                if (result != &this->header && !this->comp(key_selector()(result->data), key))
+                if (result != this->end_node() && !this->comp(key_selector()(result->data), key))
                 {
                     return ft::make_pair(result, false);
                 }
@@ -973,17 +982,17 @@ namespace ft
         node_type* insert(node_type* hint, const value_type& data)
         {
             const key_type& key = key_selector()(data);
-            node_type* parent = &this->header;
+            node_type* parent = this->end_node();
             bool left = true;
 
             do
             {
                 if (hint != NULL)
                 {
-                    if (hint == &this->header || !this->comp(key_selector()(hint->data), key))
+                    if (hint == this->end_node() || !this->comp(key_selector()(hint->data), key))
                     {
                         node_type* hint_prev;
-                        if (hint == this->header.left)
+                        if (hint == this->begin_node())
                         {
                             hint_prev = NULL;
                         }
@@ -993,7 +1002,7 @@ namespace ft
                         }
                         if (hint_prev == NULL || !this->comp(key, key_selector()(hint_prev->data)))
                         {
-                            left = this->header.parent == NULL || hint->left == NULL;
+                            left = this->root_node() == NULL || hint->left == NULL;
                             if (left)
                             {
                                 parent = hint;
@@ -1017,7 +1026,7 @@ namespace ft
 
             LABEL_INSERT_UPPER_BOUND:
             {
-                node_type* it = this->header.parent;
+                node_type* it = this->root_node();
                 while (it != NULL)
                 {
                     parent = it;
@@ -1030,13 +1039,13 @@ namespace ft
                         it = it->right;
                     }
                 }
-                left = parent == &this->header || this->comp(key, key_selector()(parent->data));
+                left = parent == this->end_node() || this->comp(key, key_selector()(parent->data));
                 break;
             }
 
             LABEL_INSERT_LOWER_BOUND:
             {
-                node_type* it = this->header.parent;
+                node_type* it = this->root_node();
                 while (it != NULL)
                 {
                     parent = it;
@@ -1049,7 +1058,7 @@ namespace ft
                         it = it->right;
                     }
                 }
-                left = parent == &this->header || !this->comp(key_selector()(parent->data), key);
+                left = parent == this->end_node() || !this->comp(key_selector()(parent->data), key);
                 break;
             }
             } while (0);
@@ -1095,9 +1104,9 @@ namespace ft
                     x->parent = z->parent;
                 }
                 x_parent = z->parent;
-                algo::set_child(z->parent, z == z->parent->left, x, &this->header);
+                algo::set_child(z->parent, z == z->parent->left, x, this->header_node());
 
-                if (this->header.left == z)
+                if (this->begin_node() == z)
                 {
                     // update minimum
                     // assert(z_left == NULL);
@@ -1154,10 +1163,10 @@ namespace ft
                 }
 
                 y->parent = z->parent;
-                algo::set_child(z->parent, z == z->parent->left, y, &this->header);
+                algo::set_child(z->parent, z == z->parent->left, y, this->header_node());
             }
 
-            algo::repair_after_erase(&this->header, z, y, x, x_parent);
+            algo::repair_after_erase(this->header_node(), z, y, x, x_parent);
 
             this->alloc.destroy(z);
             this->alloc.deallocate(z, 1);
@@ -1196,48 +1205,44 @@ namespace ft
             return i;
         }
 
-        node_type* find(const key_type& key) { return const_cast<node_type*>(const_cast<const _tree*>(this)->find(key)); }
-        const node_type* find(const key_type& key) const
+        node_type* find(const key_type& key) { return const_cast<const _tree*>(this)->find(key); }
+        node_type* find(const key_type& key) const
         {
             const_iterator it = this->lower_bound(key);
-            if (it == end() || this->comp(key, key_selector()(*it)))
+            if (it == this->end() || this->comp(key, key_selector()(*it)))
             {
-                // same, end().base()
-                return &this->header;
+                return this->end_node();
             }
             return it.base();
         }
 
         ft::pair<iterator, iterator> equal_range(const key_type& key)
         {
-            const _tree* const_this = const_cast<const _tree*>(this);
-            ft::pair<const node_type*, const node_type*> range = const_this->equal_range_raw(key, key);
-            return ft::make_pair(iterator(const_cast<node_type*>(range.first)), iterator(const_cast<node_type*>(range.second)));
+            ft::pair<node_type*, node_type*> range = const_cast<const _tree*>(this)->equal_range_raw(key, key);
+            return ft::make_pair(iterator(range.first), iterator(range.second));
         }
         ft::pair<const_iterator, const_iterator> equal_range(const key_type& key) const
         {
-            ft::pair<const node_type*, const node_type*> range = this->equal_range_raw(key, key);
+            ft::pair<node_type*, node_type*> range = this->equal_range_raw(key, key);
             return ft::make_pair(const_iterator(range.first), const_iterator(range.second));
         }
 
         iterator lower_bound(const key_type& key)
         {
-            const _tree* const_this = const_cast<const _tree*>(this);
-            return iterator(const_cast<node_type*>(const_this->lower_bound_raw(this->header.parent, &this->header, key)));
+            return iterator(const_cast<const _tree*>(this)->lower_bound_raw(this->root_node(), this->end_node(), key));
         }
         const_iterator lower_bound(const key_type& key) const
         {
-            return const_iterator(this->lower_bound_raw(this->header.parent, &this->header, key));
+            return const_iterator(this->lower_bound_raw(this->root_node(), this->end_node(), key));
         }
 
         iterator upper_bound(const key_type& key)
         {
-            const _tree* const_this = const_cast<const _tree*>(this);
-            return iterator(const_cast<node_type*>(const_this->upper_bound_raw(this->header.parent, &this->header, key)));
+            return iterator(const_cast<const _tree*>(this)->upper_bound_raw(this->root_node(), this->end_node(), key));
         }
         const_iterator upper_bound(const key_type& key) const
         {
-            return const_iterator(this->upper_bound_raw(this->header.parent, &this->header, key));
+            return const_iterator(this->upper_bound_raw(this->root_node(), this->end_node(), key));
         }
 
         friend bool operator==(const _tree& lhs, const _tree& rhs)
