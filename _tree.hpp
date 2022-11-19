@@ -622,12 +622,17 @@ namespace ft
 
     public:
         _tree(const TComp& comp = TComp(), const TAlloc& alloc = TAlloc())
-            : header(), comp(comp), alloc(alloc), number() {}
+            : header(), comp(comp), alloc(alloc), number()
+        {
+            this->header.left = this->end_node();
+            this->header.right = this->end_node();
+            this->header.parent = NULL;
+        }
 
         _tree(const _tree& that)
             : header(), comp(that.comp), alloc(that.alloc), number(that.number)
         {
-            this->copy(that.header.parent);
+            this->copy(that.root_node());
         }
 
         ~_tree()
@@ -637,11 +642,11 @@ namespace ft
 
         _tree& operator=(const _tree& that)
         {
-            this->destroy(this->root_node());
-            this->copy(that.root_node());
-            this->comp = that.comp;
-            this->alloc = that.alloc;
-            this->number = that.number;
+            if (this != &that)
+            {
+                _tree temp = that;
+                this->swap(temp);
+            }
             return *this;
         }
 
@@ -758,9 +763,9 @@ namespace ft
         {
             if (source == NULL)
             {
-                this->header.left = NULL;
+                this->header.left = this->end_node();
                 this->header.right = this->end_node();
-                this->header.parent = this->end_node();
+                this->header.parent = NULL;
                 return;
             }
 
@@ -911,8 +916,8 @@ namespace ft
         void clear()
         {
             this->destroy(this->root_node());
-            this->header.left = this->header_node();
-            this->header.right = this->header_node();
+            this->header.left = this->end_node();
+            this->header.right = this->end_node();
             this->header.parent = NULL;
             this->number = size_type();
         }
@@ -1178,7 +1183,25 @@ namespace ft
         void swap(_tree& that)
         {
             std::swap(this->header.left, that.header.left);
+            if (this->header.left == &that.header)
+            {
+                this->header.left = &this->header;
+            }
+            if (that.header.left == &this->header)
+            {
+                that.header.left = &that.header;
+            }
+
             std::swap(this->header.right, that.header.right);
+            if (this->header.right == &that.header)
+            {
+                this->header.right = &this->header;
+            }
+            if (that.header.right == &this->header)
+            {
+                that.header.right = &that.header;
+            }
+
             std::swap(this->header.parent, that.header.parent);
             if (this->header.parent != NULL)
             {
