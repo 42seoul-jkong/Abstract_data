@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include <iterator.hpp>
 #include <vector.hpp>
-
-#include <cstddef>
-#include <memory>
 
 namespace ft
 {
@@ -25,48 +21,59 @@ namespace ft
         container_type c;
 
     public:
-        explicit stack(const container_type& c = container_type());
-        stack(const stack& that);
-        ~stack();
-        stack& operator=(const stack& that);
+        explicit stack(const container_type& c = container_type())
+            : c(c) {}
 
-        reference top();
-        const_reference top() const;
+        stack(const stack& that)
+            : c(that.c) {}
 
-        bool empty() const;
-        size_type size() const;
+        ~stack() {}
 
-        void push(const value_type& value);
-        void pop();
+        stack& operator=(const stack& that)
+        {
+            this->c = that.c;
+            return *this;
+        }
+
+    public:
+        reference top() { return c.back(); }
+        const_reference top() const { return c.back(); }
+
+        bool empty() const { return c.empty(); }
+        size_type size() const { return c.size(); }
+
+        void push(const value_type& value) { c.push_back(value); }
+        void pop() { c.pop_back(); }
+
+    public:
+        friend bool operator==(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c == rhs.c;
+        }
+
+        friend bool operator!=(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c != rhs.c;
+        }
+
+        friend bool operator<(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c < rhs.c;
+        }
+
+        friend bool operator<=(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c <= rhs.c;
+        }
+
+        friend bool operator>(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c > rhs.c;
+        }
+
+        friend bool operator>=(const stack& lhs, const stack& rhs)
+        {
+            return lhs.c >= rhs.c;
+        }
     };
-
-    template <typename T, typename TContainer>
-    inline bool operator==(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
-
-    template <typename T, typename TContainer>
-    inline bool operator!=(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
-
-    template <typename T, typename TContainer>
-    inline bool operator<(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
-
-    template <typename T, typename TContainer>
-    inline bool operator<=(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
-
-    template <typename T, typename TContainer>
-    inline bool operator>(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
-
-    template <typename T, typename TContainer>
-    inline bool operator>=(
-        const stack<T, TContainer>& lhs,
-        const stack<T, TContainer>& rhs);
 }

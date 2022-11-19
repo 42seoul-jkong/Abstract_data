@@ -3,11 +3,14 @@
 
 #pragma once
 
+#include <algorithm.hpp>
 #include <iterator.hpp>
 #include <iterator/_pointer_iterator.hpp>
 
 #include <cstddef>
 #include <memory>
+
+#include <cassert>
 
 namespace ft
 {
@@ -31,12 +34,13 @@ namespace ft
     private:
         pointer start;
         size_type length;
-        size_type capacity;
+        size_type count;
         allocator_type alloc;
 
     public:
-        vector();
-        explicit vector(const allocator_type& alloc);
+        vector() {}
+        explicit vector(const allocator_type& alloc)
+            : alloc(alloc) {}
         explicit vector(size_type count, const value_type& value = value_type(), const allocator_type& alloc = allocator_type());
         template <class UIter>
         vector(UIter first, UIter last, const allocator_type& alloc = allocator_type());
@@ -85,40 +89,44 @@ namespace ft
         void pop_back();
         void resize(size_type count, value_type value = value_type());
         void swap(vector& that);
+
+    public:
+        friend bool operator==(const vector& lhs, const vector& rhs)
+        {
+            return lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+        }
+
+        friend bool operator!=(const vector& lhs, const vector& rhs)
+        {
+            return !(lhs == rhs);
+        }
+
+        friend bool operator<(const vector& lhs, const vector& rhs)
+        {
+            return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+        }
+
+        friend bool operator<=(const vector& lhs, const vector& rhs)
+        {
+            return !(rhs < lhs);
+        }
+
+        friend bool operator>(const vector& lhs, const vector& rhs)
+        {
+            return rhs < lhs;
+        }
+
+        friend bool operator>=(const vector& lhs, const vector& rhs)
+        {
+            return !(lhs < rhs);
+        }
     };
-
-    template <typename T, typename TAlloc>
-    inline bool operator==(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
-
-    template <typename T, typename TAlloc>
-    inline bool operator!=(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
-
-    template <typename T, typename TAlloc>
-    inline bool operator<(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
-
-    template <typename T, typename TAlloc>
-    inline bool operator<=(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
-
-    template <typename T, typename TAlloc>
-    inline bool operator>(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
-
-    template <typename T, typename TAlloc>
-    inline bool operator>=(
-        const vector<T, TAlloc>& lhs,
-        const vector<T, TAlloc>& rhs);
 
     template <typename T, typename TAlloc>
     inline void swap(
         vector<T, TAlloc>& lhs,
-        vector<T, TAlloc>& rhs);
+        vector<T, TAlloc>& rhs)
+    {
+        lhs.swap(rhs);
+    }
 }
