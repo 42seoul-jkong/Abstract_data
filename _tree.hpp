@@ -639,7 +639,7 @@ namespace ft
 
         ~_tree()
         {
-            this->destroy(this->root_node());
+            this->destruct(this->root_node());
         }
 
         _tree& operator=(const _tree& that)
@@ -660,7 +660,6 @@ namespace ft
         node_type* insert_raw(node_type* parent, bool left, const value_type& data)
         {
             node_type* node = this->alloc.allocate(1);
-            this->alloc.construct(node, node_type(data));
 
             node->parent = parent;
             if (parent == this->end_node())
@@ -689,6 +688,8 @@ namespace ft
                     this->header.right = node;
                 }
             }
+
+            this->alloc.construct(node, node_type(data));
 
             algo::repair_after_insert(this->header_node(), node);
             this->number++;
@@ -780,11 +781,12 @@ namespace ft
 
             node_type* src_current = source;
             node_type* dest_current = this->alloc.allocate(1);
-            this->alloc.construct(dest_current, *src_current);
 
             this->header.left = dest_current;
             this->header.right = dest_current;
             this->header.parent = dest_current;
+
+            this->alloc.construct(dest_current, *src_current);
 
             dest_current->left = NULL;
             dest_current->right = NULL;
@@ -797,9 +799,10 @@ namespace ft
                     // Down left
                     src_current = src_current->left;
                     node_type* node = this->alloc.allocate(1);
-                    this->alloc.construct(node, *src_current);
 
                     dest_current->left = node;
+
+                    this->alloc.construct(node, *src_current);
 
                     node->left = NULL;
                     node->right = NULL;
@@ -816,9 +819,10 @@ namespace ft
                     // Down right
                     src_current = src_current->right;
                     node_type* node = this->alloc.allocate(1);
-                    this->alloc.construct(node, *src_current);
 
                     dest_current->right = node;
+
+                    this->alloc.construct(node, *src_current);
 
                     node->left = NULL;
                     node->right = NULL;
@@ -840,7 +844,7 @@ namespace ft
             }
         }
 
-        void destroy(node_type* node)
+        void destruct(node_type* node)
         {
             while (node != NULL)
             {
@@ -926,7 +930,7 @@ namespace ft
 
         void clear()
         {
-            this->destroy(this->root_node());
+            this->destruct(this->root_node());
             this->reset();
             this->number = size_type();
         }

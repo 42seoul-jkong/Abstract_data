@@ -120,6 +120,7 @@ namespace ft
             }
             return it->second;
         }
+
         mapped_type& operator[](const key_type& key)
         {
             iterator it = this->find(key);
