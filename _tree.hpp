@@ -726,9 +726,9 @@ namespace ft
             return ft::make_pair<node_type*, node_type*>(y, y);
         }
 
-        node_type* lower_bound_raw(node_type* begin, node_type* end, const TKey& key) const
+        node_type* lower_bound_raw(node_type* root, node_type* end, const TKey& key) const
         {
-            node_type* it = begin;
+            node_type* it = root;
             node_type* result = end;
             while (it != NULL)
             {
@@ -745,9 +745,9 @@ namespace ft
             return result;
         }
 
-        node_type* upper_bound_raw(node_type* begin, node_type* end, const TKey& key) const
+        node_type* upper_bound_raw(node_type* root, node_type* end, const TKey& key) const
         {
-            node_type* it = begin;
+            node_type* it = root;
             node_type* result = end;
             while (it != NULL)
             {
@@ -790,7 +790,7 @@ namespace ft
 
             dest_current->left = NULL;
             dest_current->right = NULL;
-            dest_current->parent = this->end_node();
+            dest_current->parent = this->header_node();
 
             for (;;)
             {

@@ -20,8 +20,8 @@ namespace ft
 
     public:
         typedef TIter iterator_type;
-        typedef typename _Traits::difference_type iterator_category;
-        typedef typename _Traits::difference_type value_type;
+        typedef typename _Traits::iterator_category iterator_category;
+        typedef typename _Traits::value_type value_type;
         typedef typename _Traits::difference_type difference_type;
         typedef typename _Traits::pointer pointer;
         typedef typename _Traits::reference reference;
