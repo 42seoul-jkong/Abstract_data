@@ -294,7 +294,7 @@ namespace ft
         iterator insert(iterator pos, const value_type& value)
         {
             size_type index = std::distance(this->begin(), pos);
-            this->insert(pos, 1, value);
+            this->insert(pos, size_type(1), value);
             return vector::advance(this->begin(), index);
         }
 

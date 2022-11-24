@@ -22,4 +22,22 @@ namespace ft
             value = sizeof((f<T>)(0)) == sizeof(yes)
         };
     };
+
+    template <typename T>
+    struct is_iterator<T*>
+    {
+        enum
+        {
+            value = true
+        };
+    };
+
+    template <typename T>
+    struct is_iterator<const T*>
+    {
+        enum
+        {
+            value = true
+        };
+    };
 }

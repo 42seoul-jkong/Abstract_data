@@ -12,19 +12,19 @@ namespace ft
 {
     template <typename TIter>
     class reverse_iterator
-        : public iterator<typename iterator_traits<TIter>::iterator_category,
-                          typename iterator_traits<TIter>::value_type,
-                          typename iterator_traits<TIter>::difference_type,
-                          typename iterator_traits<TIter>::pointer,
-                          typename iterator_traits<TIter>::reference>
+        : public iterator<typename ft::iterator_traits<TIter>::iterator_category,
+                          typename ft::iterator_traits<TIter>::value_type,
+                          typename ft::iterator_traits<TIter>::difference_type,
+                          typename ft::iterator_traits<TIter>::pointer,
+                          typename ft::iterator_traits<TIter>::reference>
     {
     protected:
-        typedef iterator_traits<TIter> _Traits;
+        typedef ft::iterator_traits<TIter> _Traits;
 
     public:
         typedef TIter iterator_type;
-        typedef typename _Traits::difference_type iterator_category;
-        typedef typename _Traits::difference_type value_type;
+        typedef typename _Traits::iterator_category iterator_category;
+        typedef typename _Traits::value_type value_type;
         typedef typename _Traits::difference_type difference_type;
         typedef typename _Traits::pointer pointer;
         typedef typename _Traits::reference reference;

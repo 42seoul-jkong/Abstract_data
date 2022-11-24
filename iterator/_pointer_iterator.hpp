@@ -16,7 +16,7 @@ namespace ft
     struct _pointer_iterator
     {
     protected:
-        typedef iterator_traits<TIter> _Traits;
+        typedef ft::iterator_traits<TIter> _Traits;
 
     public:
         typedef TIter iterator_type;
