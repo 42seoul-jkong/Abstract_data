@@ -35,64 +35,64 @@ namespace ft
         template <class U>
         _pointer_iterator(const _pointer_iterator<U, typename ft::enable_if<ft::is_same<U, typename _TCont::pointer>::value, _TCont>::type>& that) : current(that.base()) {}
 
-        iterator_type base() const { return current; }
+        iterator_type base() const { return this->current; }
 
         reference operator*() const
         {
-            return *current;
+            return *this->current;
         }
 
         pointer operator->() const
         {
-            return current;
+            return this->current;
         }
 
         reference operator[](difference_type n) const
         {
-            return current[n];
+            return this->current[n];
         }
 
         _pointer_iterator& operator++()
         {
-            ++current;
+            ++this->current;
             return *this;
         }
 
         _pointer_iterator& operator--()
         {
-            --current;
+            --this->current;
             return *this;
         }
 
         _pointer_iterator operator++(int)
         {
-            return _pointer_iterator(current++);
+            return _pointer_iterator(this->current++);
         }
 
         _pointer_iterator operator--(int)
         {
-            return _pointer_iterator(current--);
+            return _pointer_iterator(this->current--);
         }
 
         _pointer_iterator operator+(difference_type n) const
         {
-            return _pointer_iterator(current + n);
+            return _pointer_iterator(this->current + n);
         }
 
         _pointer_iterator operator-(difference_type n) const
         {
-            return _pointer_iterator(current - n);
+            return _pointer_iterator(this->current - n);
         }
 
-        _pointer_iterator& operator+=(difference_type n) const
+        _pointer_iterator& operator+=(difference_type n)
         {
-            current += n;
+            this->current += n;
             return *this;
         }
 
-        _pointer_iterator& operator-=(difference_type n) const
+        _pointer_iterator& operator-=(difference_type n)
         {
-            current -= n;
+            this->current -= n;
             return *this;
         }
     };

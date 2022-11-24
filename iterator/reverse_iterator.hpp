@@ -38,11 +38,11 @@ namespace ft
         template <class U>
         reverse_iterator(const reverse_iterator<U>& that) : current(that.base()) {}
 
-        iterator_type base() const { return current; }
+        iterator_type base() const { return this->current; }
 
         reference operator*() const
         {
-            TIter tmp = current;
+            TIter tmp = this->current;
             return *--tmp;
         }
 
@@ -58,49 +58,49 @@ namespace ft
 
         reverse_iterator& operator++()
         {
-            --current;
+            --this->current;
             return *this;
         }
 
         reverse_iterator& operator--()
         {
-            ++current;
+            ++this->current;
             return *this;
         }
 
         reverse_iterator operator++(int)
         {
             reverse_iterator tmp = *this;
-            --current;
+            --this->current;
             return tmp;
         }
 
         reverse_iterator operator--(int)
         {
             reverse_iterator tmp = *this;
-            ++current;
+            ++this->current;
             return tmp;
         }
 
         reverse_iterator operator+(difference_type n) const
         {
-            return reverse_iterator(current - n);
+            return reverse_iterator(this->current - n);
         }
 
         reverse_iterator operator-(difference_type n) const
         {
-            return reverse_iterator(current + n);
+            return reverse_iterator(this->current + n);
         }
 
-        reverse_iterator& operator+=(difference_type n) const
+        reverse_iterator& operator+=(difference_type n)
         {
-            current -= n;
+            this->current -= n;
             return *this;
         }
 
-        reverse_iterator& operator-=(difference_type n) const
+        reverse_iterator& operator-=(difference_type n)
         {
-            current += n;
+            this->current += n;
             return *this;
         }
     };
