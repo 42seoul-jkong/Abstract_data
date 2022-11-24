@@ -59,7 +59,8 @@ namespace ft
             : c(comp, alloc) {}
 
         template <class UIter>
-        set(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+        // set(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
+        set(typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             : c(comp, alloc)
         {
             this->insert(first, last);
@@ -110,7 +111,8 @@ namespace ft
         }
 
         template <class UIter>
-        void insert(UIter first, UIter last)
+        // void insert(UIter first, UIter last)
+        typename ft::enable_if<ft::is_iterator<UIter>::value, void>::type insert(UIter first, UIter last)
         {
             for (UIter it = first; it != last; ++it)
             {

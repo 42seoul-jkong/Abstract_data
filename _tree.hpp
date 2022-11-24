@@ -660,6 +660,15 @@ namespace ft
         node_type* insert_raw(node_type* parent, bool left, const value_type& data)
         {
             node_type* node = this->alloc.allocate(1);
+            try
+            {
+                this->alloc.construct(node, node_type(data));
+            }
+            catch (...)
+            {
+                this->alloc.deallocate(node, 1);
+                throw;
+            }
 
             node->parent = parent;
             if (parent == this->end_node())
@@ -688,8 +697,6 @@ namespace ft
                     this->header.right = node;
                 }
             }
-
-            this->alloc.construct(node, node_type(data));
 
             algo::repair_after_insert(this->header_node(), node);
             this->number++;
