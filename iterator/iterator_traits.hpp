@@ -3,13 +3,20 @@
 
 #pragma once
 
+#include <type_traits.hpp>
+
 #include <cstddef>
 #include <iterator>
 
 namespace ft
 {
-    template <typename TIter>
+    template <typename TIter, typename = void>
     struct iterator_traits
+    {
+    };
+
+    template <typename TIter>
+    struct iterator_traits<TIter, typename ft::void_t<typename TIter::iterator_category>::type>
     {
         typedef typename TIter::difference_type difference_type;
         typedef typename TIter::value_type value_type;
@@ -20,7 +27,7 @@ namespace ft
 
     // Pointer Specialization
     template <typename T>
-    struct iterator_traits<T*>
+    struct iterator_traits<T*, void>
     {
         typedef std::ptrdiff_t difference_type;
         typedef T value_type;
@@ -31,7 +38,7 @@ namespace ft
 
     // Const-Pointer Specialization
     template <typename T>
-    struct iterator_traits<const T*>
+    struct iterator_traits<const T*, void>
     {
         typedef std::ptrdiff_t difference_type;
         typedef T value_type;
