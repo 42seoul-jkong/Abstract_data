@@ -11,7 +11,7 @@ namespace ft
 {
     template <typename T>
     struct is_object
-        : public ft::integral_constant<
+        : ft::integral_constant<
               bool,
               !ft::is_reference<T>::value &&
                   !ft::is_void<T>::value &&

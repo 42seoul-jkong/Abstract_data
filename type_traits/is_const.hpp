@@ -9,13 +9,13 @@ namespace ft
 {
     // Default
     template <typename T>
-    struct is_const : public ft::false_type
+    struct is_const : ft::false_type
     {
     };
 
     // Reference
     template <typename T>
-    struct is_const<const T> : public ft::true_type
+    struct is_const<const T> : ft::true_type
     {
     };
 }

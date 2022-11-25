@@ -6,6 +6,7 @@
 #include "type_traits/enable_if.hpp"
 #include "type_traits/integral_constant.hpp"
 #include "type_traits/is_const.hpp"
+#include "type_traits/is_convertible.hpp"
 #include "type_traits/is_function.hpp"
 #include "type_traits/is_integral.hpp"
 #include "type_traits/is_object.hpp"

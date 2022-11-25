@@ -9,25 +9,25 @@ namespace ft
 {
     // Default
     template <typename T>
-    struct is_void : public ft::false_type
+    struct is_void : ft::false_type
     {
     };
 
     // Void
     template <>
-    struct is_void<void> : public ft::true_type
+    struct is_void<void> : ft::true_type
     {
     };
     template <>
-    struct is_void<const void> : public ft::true_type
+    struct is_void<const void> : ft::true_type
     {
     };
     template <>
-    struct is_void<const volatile void> : public ft::true_type
+    struct is_void<const volatile void> : ft::true_type
     {
     };
     template <>
-    struct is_void<volatile void> : public ft::true_type
+    struct is_void<volatile void> : ft::true_type
     {
     };
 }

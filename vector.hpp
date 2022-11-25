@@ -108,6 +108,7 @@ namespace ft
     public:
         void assign(size_type count, const value_type& value)
         {
+            (void)this->check(count, "vector::assign");
             if (this->capacity() >= count)
             {
                 size_type length = this->size();
@@ -144,9 +145,9 @@ namespace ft
 
         template <class UIter>
         // void assign(UIter first, UIter last)
-        typename ft::enable_if<ft::is_iterator<UIter>::value, void>::type assign(UIter first, UIter last)
+        typename ft::enable_if<ft::is_forward_iterator<UIter>::value, void>::type assign(UIter first, UIter last)
         {
-            size_type count = std::distance(first, last);
+            size_type count = this->check(std::distance(first, last), "vector::assign");
             if (this->capacity() >= count)
             {
                 size_type length = this->size();
@@ -178,6 +179,17 @@ namespace ft
                 this->start = assign;
                 this->length = count;
                 this->count = count;
+            }
+        }
+
+        template <class UIter>
+        // void assign(UIter first, UIter last)
+        typename ft::enable_if<!ft::is_forward_iterator<UIter>::value && ft::is_input_iterator<UIter>::value, void>::type assign(UIter first, UIter last)
+        {
+            this->clear();
+            for (; first != last; ++first)
+            {
+                this->push_back(*first);
             }
         }
 
@@ -254,7 +266,16 @@ namespace ft
         size_type capacity() const { return this->count; }
 
     protected:
-        size_type expand(size_type delta, const char* caller)
+        inline size_type check(size_type length, const char* caller)
+        {
+            if (this->max_size() < length)
+            {
+                throw std::length_error(caller);
+            }
+            return length;
+        }
+
+        inline size_type expand(size_type delta, const char* caller)
         {
             size_type length = this->size();
             if (this->max_size() - length < delta)
@@ -416,7 +437,7 @@ namespace ft
 
         template <class UIter>
         // void insert(iterator pos, UIter first, UIter last)
-        typename ft::enable_if<ft::is_iterator<UIter>::value, void>::type insert(iterator pos, UIter first, UIter last)
+        typename ft::enable_if<ft::is_forward_iterator<UIter>::value, void>::type insert(iterator pos, UIter first, UIter last)
         {
             size_type count = std::distance(first, last);
             size_type index = std::distance(this->begin(), pos);
@@ -484,6 +505,17 @@ namespace ft
                 this->start = insert;
                 this->length += count;
                 this->count = new_cap;
+            }
+        }
+
+        template <class UIter>
+        // void insert(iterator pos, UIter first, UIter last)
+        typename ft::enable_if<!ft::is_forward_iterator<UIter>::value && ft::is_input_iterator<UIter>::value, void>::type insert(iterator pos, UIter first, UIter last)
+        {
+            for (; first != last; ++first)
+            {
+                pos = this->insert(pos, *first);
+                ++pos;
             }
         }
 
