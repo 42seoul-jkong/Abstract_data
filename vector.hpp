@@ -13,7 +13,6 @@
 #include <exception>
 #include <iterator>
 #include <limits>
-#include <memory>
 
 namespace ft
 {
@@ -65,7 +64,7 @@ namespace ft
             : start(), length(that.length), count(that.count), alloc(that.alloc)
         {
             this->start = this->alloc.allocate(this->capacity());
-            std::uninitialized_copy(that.begin(), that.end(), this->begin());
+            vector::uninitialized_copy(that.begin(), that.end(), this->begin());
         }
 
         ~vector()
@@ -95,12 +94,15 @@ namespace ft
 
         void destruct()
         {
-            for (size_type i = this->length; i != size_type();)
+            if (this->start != pointer())
             {
-                --i;
-                this->alloc.destroy(ft::addressof(this->start[i]));
+                for (size_type i = this->length; i != size_type();)
+                {
+                    --i;
+                    this->alloc.destroy(ft::addressof(this->start[i]));
+                }
+                this->alloc.deallocate(this->start, this->count);
             }
-            this->alloc.deallocate(this->start, this->count);
         }
 
     public:
@@ -112,7 +114,7 @@ namespace ft
                 if (length < count)
                 {
                     std::fill_n(this->begin(), length, value);
-                    std::uninitialized_fill_n(vector::advance(this->begin(), length), count - length, value);
+                    vector::uninitialized_fill_n(vector::advance(this->begin(), length), count - length, value);
                 }
                 else
                 {
@@ -126,7 +128,7 @@ namespace ft
                 pointer assign = this->alloc.allocate(count);
                 try
                 {
-                    std::uninitialized_fill_n(iterator(assign), count, value);
+                    vector::uninitialized_fill_n(iterator(assign), count, value);
                 }
                 catch (...)
                 {
@@ -151,7 +153,7 @@ namespace ft
                 if (length < count)
                 {
                     std::copy(first, vector::advance(first, length), this->begin());
-                    std::uninitialized_copy(vector::advance(first, length), last, vector::advance(this->begin(), length));
+                    vector::uninitialized_copy(vector::advance(first, length), last, vector::advance(this->begin(), length));
                 }
                 else
                 {
@@ -165,7 +167,7 @@ namespace ft
                 pointer assign = this->alloc.allocate(count);
                 try
                 {
-                    std::uninitialized_copy(first, last, iterator(assign));
+                    vector::uninitialized_copy(first, last, iterator(assign));
                 }
                 catch (...)
                 {
@@ -236,7 +238,7 @@ namespace ft
                 pointer reserve = this->alloc.allocate(new_cap);
                 try
                 {
-                    std::uninitialized_copy(this->begin(), this->end(), iterator(reserve));
+                    vector::uninitialized_copy(this->begin(), this->end(), iterator(reserve));
                 }
                 catch (...)
                 {
@@ -278,11 +280,55 @@ namespace ft
 
     private:
         template <typename UIter>
-        // static UIter advance(UIter it, size_type n)
-        static typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type advance(UIter it, difference_type n)
+        // static inline UIter advance(UIter it, size_type n)
+        static inline typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type advance(UIter it, difference_type n)
         {
             std::advance(it, n);
             return it;
+        }
+
+        inline void uninitialized_fill_n(iterator pos, size_type count, const value_type& value)
+        {
+            iterator it = pos;
+            try
+            {
+                for (; count != 0; --count)
+                {
+                    this->alloc.construct(ft::addressof(*it), value);
+                    ++it;
+                }
+            }
+            catch (...)
+            {
+                for (; pos != it; ++pos)
+                {
+                    this->alloc.destroy(ft::addressof(*it));
+                }
+                throw;
+            }
+        }
+
+        template <typename UIter>
+        // inline void uninitialized_copy(UIter first, UIter last, iterator pos)
+        inline typename ft::enable_if<ft::is_iterator<UIter>::value, void>::type uninitialized_copy(UIter first, UIter last, iterator pos)
+        {
+            iterator it = pos;
+            try
+            {
+                for (UIter val = first; val != last; ++val)
+                {
+                    this->alloc.construct(ft::addressof(*it), *val);
+                    ++it;
+                }
+            }
+            catch (...)
+            {
+                for (; it != pos; --it)
+                {
+                    this->alloc.destroy(ft::addressof(*it));
+                }
+                throw;
+            }
         }
 
     public:
@@ -309,15 +355,15 @@ namespace ft
                 size_type difference = std::distance(pos, this->end());
                 if (len <= index + count)
                 {
-                    std::uninitialized_fill_n(this->end(), count - difference, value);
+                    vector::uninitialized_fill_n(this->end(), count - difference, value);
                     this->length += count - difference;
-                    std::uninitialized_copy(pos, vector::advance(pos, difference), this->end());
+                    vector::uninitialized_copy(pos, vector::advance(pos, difference), this->end());
                     this->length += difference;
                     std::fill_n(pos, difference, value);
                 }
                 else
                 {
-                    std::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end());
+                    vector::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end());
                     this->length += count;
                     std::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
                     std::fill_n(pos, count, value);
@@ -328,13 +374,13 @@ namespace ft
                 pointer insert = this->alloc.allocate(new_cap);
                 try
                 {
-                    std::uninitialized_copy(this->begin(), pos, iterator(insert));
+                    vector::uninitialized_copy(this->begin(), pos, iterator(insert));
                     try
                     {
-                        std::uninitialized_fill_n(vector::advance(iterator(insert), index), count, value);
+                        vector::uninitialized_fill_n(vector::advance(iterator(insert), index), count, value);
                         try
                         {
-                            std::uninitialized_copy(pos, this->end(), vector::advance(iterator(insert), index + count));
+                            vector::uninitialized_copy(pos, this->end(), vector::advance(iterator(insert), index + count));
                         }
                         catch (...)
                         {
@@ -382,15 +428,15 @@ namespace ft
                 size_type difference = std::distance(pos, this->end());
                 if (len <= index + count)
                 {
-                    std::uninitialized_copy(vector::advance(last, difference - count), last, this->end());
+                    vector::uninitialized_copy(vector::advance(last, difference - count), last, this->end());
                     this->length += count - difference;
-                    std::uninitialized_copy(pos, vector::advance(pos, difference), this->end());
+                    vector::uninitialized_copy(pos, vector::advance(pos, difference), this->end());
                     this->length += difference;
                     std::copy(first, vector::advance(first, count - difference), pos);
                 }
                 else
                 {
-                    std::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end());
+                    vector::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end());
                     this->length += count;
                     std::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
                     std::copy(first, last, pos);
@@ -401,13 +447,13 @@ namespace ft
                 pointer insert = this->alloc.allocate(new_cap);
                 try
                 {
-                    std::uninitialized_copy(this->begin(), pos, iterator(insert));
+                    vector::uninitialized_copy(this->begin(), pos, iterator(insert));
                     try
                     {
-                        std::uninitialized_copy(first, last, vector::advance(iterator(insert), index));
+                        vector::uninitialized_copy(first, last, vector::advance(iterator(insert), index));
                         try
                         {
-                            std::uninitialized_copy(pos, this->end(), vector::advance(iterator(insert), index + count));
+                            vector::uninitialized_copy(pos, this->end(), vector::advance(iterator(insert), index + count));
                         }
                         catch (...)
                         {
