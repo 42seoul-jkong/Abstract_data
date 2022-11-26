@@ -10,24 +10,32 @@
 
 namespace ft
 {
-    template <typename TIter, typename = void>
-    struct iterator_traits
+    namespace _internal
     {
-    };
+        template <typename T, typename = void>
+        struct iterator_traits_base
+        {
+        };
 
-    template <typename TIter>
-    struct iterator_traits<TIter, typename ft::void_t<typename TIter::iterator_category>::type>
+        template <typename TIter>
+        struct iterator_traits_base<TIter, typename ft::void_t<typename TIter::iterator_category>::type>
+        {
+            typedef typename TIter::difference_type difference_type;
+            typedef typename TIter::value_type value_type;
+            typedef typename TIter::pointer pointer;
+            typedef typename TIter::reference reference;
+            typedef typename TIter::iterator_category iterator_category;
+        };
+    }
+
+    template <typename T>
+    struct iterator_traits : _internal::iterator_traits_base<T>
     {
-        typedef typename TIter::difference_type difference_type;
-        typedef typename TIter::value_type value_type;
-        typedef typename TIter::pointer pointer;
-        typedef typename TIter::reference reference;
-        typedef typename TIter::iterator_category iterator_category;
     };
 
     // Pointer Specialization
     template <typename T>
-    struct iterator_traits<T*, void>
+    struct iterator_traits<T*>
     {
         typedef std::ptrdiff_t difference_type;
         typedef T value_type;
@@ -38,7 +46,7 @@ namespace ft
 
     // Const-Pointer Specialization
     template <typename T>
-    struct iterator_traits<const T*, void>
+    struct iterator_traits<const T*>
     {
         typedef std::ptrdiff_t difference_type;
         typedef T value_type;
