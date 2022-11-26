@@ -33,7 +33,7 @@ namespace ft
     {
     };
     template <>
-    struct is_integral<unsigned short> : ft::true_type
+    struct is_integral<unsigned short int> : ft::true_type
     {
     };
     template <>
@@ -41,11 +41,7 @@ namespace ft
     {
     };
     template <>
-    struct is_integral<unsigned long> : ft::true_type
-    {
-    };
-    template <>
-    struct is_integral<unsigned long long> : ft::true_type
+    struct is_integral<unsigned long int> : ft::true_type
     {
     };
 
@@ -55,7 +51,7 @@ namespace ft
     {
     };
     template <>
-    struct is_integral<short> : ft::true_type
+    struct is_integral<short int> : ft::true_type
     {
     };
     template <>
@@ -63,30 +59,17 @@ namespace ft
     {
     };
     template <>
-    struct is_integral<long> : ft::true_type
-    {
-    };
-    template <>
-    struct is_integral<long long> : ft::true_type
+    struct is_integral<long int> : ft::true_type
     {
     };
 
     // Intrinsic
     template <>
-    struct is_integral<char> : ft::true_type
-    {
-    };
-    template <>
     struct is_integral<bool> : ft::true_type
     {
     };
-
     template <>
-    struct is_integral<char16_t> : ft::true_type
-    {
-    };
-    template <>
-    struct is_integral<char32_t> : ft::true_type
+    struct is_integral<char> : ft::true_type
     {
     };
     template <>
