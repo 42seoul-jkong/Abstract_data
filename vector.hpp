@@ -332,8 +332,9 @@ namespace ft
             }
             catch (...)
             {
-                for (; pos != it; ++pos)
+                for (; it != pos;)
                 {
+                    --it;
                     alloc.destroy(ft::addressof(*it));
                 }
                 throw;
@@ -355,8 +356,9 @@ namespace ft
             }
             catch (...)
             {
-                for (; it != pos; --it)
+                for (; it != pos;)
                 {
+                    --it;
                     alloc.destroy(ft::addressof(*it));
                 }
                 throw;

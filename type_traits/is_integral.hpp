@@ -44,6 +44,10 @@ namespace ft
     struct is_integral<unsigned long> : ft::true_type
     {
     };
+    template <>
+    struct is_integral<unsigned long long> : ft::true_type
+    {
+    };
 
     // Signed
     template <>
@@ -62,6 +66,10 @@ namespace ft
     struct is_integral<long> : ft::true_type
     {
     };
+    template <>
+    struct is_integral<long long> : ft::true_type
+    {
+    };
 
     // Intrinsic
     template <>
@@ -70,6 +78,19 @@ namespace ft
     };
     template <>
     struct is_integral<bool> : ft::true_type
+    {
+    };
+
+    template <>
+    struct is_integral<char16_t> : ft::true_type
+    {
+    };
+    template <>
+    struct is_integral<char32_t> : ft::true_type
+    {
+    };
+    template <>
+    struct is_integral<wchar_t> : ft::true_type
     {
     };
 }
