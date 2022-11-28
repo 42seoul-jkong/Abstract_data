@@ -15,9 +15,6 @@ namespace ft
         operator T() const { return Value; }
     };
 
-    template <typename T, T Value>
-    T const integral_constant<T, Value>::value;
-
     typedef integral_constant<bool, true> true_type;
     typedef integral_constant<bool, false> false_type;
 }
