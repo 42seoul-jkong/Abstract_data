@@ -379,17 +379,27 @@ namespace ft
                 size_type difference = std::distance(pos, this->end());
                 if (len <= index + count)
                 {
+                    // [end, end + (count - difference))
                     adaptor.uninitialized_copy_n_tail(difference, this->end(), this->alloc);
                     this->length += count - difference;
+
+                    // [pos, pos + difference) --(move)-> [(end + (count - difference)) == pos + count, (end + (count - difference)) + difference == pos + count + difference)
                     vector::uninitialized_copy(pos, vector::advance(pos, difference), this->end(), this->alloc);
                     this->length += difference;
+
+                    // [pos, pos + difference)
                     adaptor.copy_n_head(difference, pos);
                 }
                 else
                 {
+                    // [end - count, end) --(move)-> [end, end + count)
                     vector::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end(), this->alloc);
                     this->length += count;
+
+                    // [pos, pos + (difference - count) == end - count) --(move reverse)-> (end, end - (difference - count) == pos + count]
                     std::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
+
+                    // [pos, pos + count)
                     adaptor.copy_n_head(count, pos);
                 }
             }
