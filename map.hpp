@@ -80,7 +80,7 @@ namespace ft
         explicit map(const key_compare& comp, const allocator_type& alloc = allocator_type())
             : c(comp, alloc) {}
 
-        template <class UIter>
+        template <typename UIter>
         // map(UIter first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
         map(typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type first, UIter last, const key_compare& comp = key_compare(), const allocator_type& alloc = allocator_type())
             : c(comp, alloc)
@@ -161,7 +161,7 @@ namespace ft
             return iterator(this->c.insert_unique(hint.base(), value).first);
         }
 
-        template <class UIter>
+        template <typename UIter>
         // void insert(UIter first, UIter last)
         typename ft::enable_if<ft::is_iterator<UIter>::value, void>::type insert(UIter first, UIter last)
         {

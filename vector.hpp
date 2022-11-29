@@ -52,7 +52,7 @@ namespace ft
             this->assign(count, value);
         }
 
-        template <class UIter>
+        template <typename UIter>
         // vector(UIter first, UIter last, const allocator_type& alloc = allocator_type())
         vector(typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type first, UIter last, const allocator_type& alloc = allocator_type())
             : start(), length(), count(), alloc(alloc)
@@ -121,7 +121,7 @@ namespace ft
             inline void uninitialized_copy_n_tail(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_fill_n(dest, this->count() - pivot, this->value, alloc); }
         };
 
-        template <class UIter>
+        template <typename UIter>
         struct vector_operation_range
         {
             mutable UIter first;
@@ -186,14 +186,14 @@ namespace ft
             this->assign_internal(vector_operation_count(count, value));
         }
 
-        template <class UIter>
+        template <typename UIter>
         // void assign(UIter first, UIter last)
         typename ft::enable_if<ft::is_forward_iterator<UIter>::value, void>::type assign(UIter first, UIter last)
         {
             this->assign_internal(vector_operation_range<UIter>(first, last));
         }
 
-        template <class UIter>
+        template <typename UIter>
         // void assign(UIter first, UIter last)
         typename ft::enable_if<!ft::is_forward_iterator<UIter>::value && ft::is_input_iterator<UIter>::value, void>::type assign(UIter first, UIter last)
         {
@@ -466,14 +466,14 @@ namespace ft
             this->insert_internal(pos, vector_operation_count(count, value));
         }
 
-        template <class UIter>
+        template <typename UIter>
         // void insert(iterator pos, UIter first, UIter last)
         typename ft::enable_if<ft::is_forward_iterator<UIter>::value, void>::type insert(iterator pos, UIter first, UIter last)
         {
             this->insert_internal(pos, vector_operation_range<UIter>(first, last));
         }
 
-        template <class UIter>
+        template <typename UIter>
         // void insert(iterator pos, UIter first, UIter last)
         typename ft::enable_if<!ft::is_forward_iterator<UIter>::value && ft::is_input_iterator<UIter>::value, void>::type insert(iterator pos, UIter first, UIter last)
         {

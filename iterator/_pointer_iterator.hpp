@@ -32,7 +32,7 @@ namespace ft
     public:
         _pointer_iterator() : current(iterator_type()) {}
         explicit _pointer_iterator(const iterator_type& current) : current(current) {}
-        template <class U>
+        template <typename U>
         _pointer_iterator(const _pointer_iterator<U, typename ft::enable_if<ft::is_same<U, typename _TCont::pointer>::value, _TCont>::type>& that) : current(that.base()) {}
 
         iterator_type base() const { return this->current; }

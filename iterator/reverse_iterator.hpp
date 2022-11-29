@@ -35,7 +35,7 @@ namespace ft
     public:
         reverse_iterator() : current() {}
         explicit reverse_iterator(iterator_type current) : current(current) {}
-        template <class U>
+        template <typename U>
         reverse_iterator(const reverse_iterator<U>& that) : current(that.base()) {}
 
         iterator_type base() const { return this->current; }
