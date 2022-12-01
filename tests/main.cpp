@@ -1,12 +1,9 @@
-#include <memory.hpp>
-
 #ifdef FT_USE_STL
 #include <map>
 #include <set>
 #include <stack>
 #include <vector>
-// namespace ft = std;
-#define ft std
+namespace ft = std;
 #else
 #include <map.hpp>
 #include <set.hpp>
@@ -68,8 +65,8 @@ int int_vector()
     vector_int.resize(2 * vector_int.capacity() + 42);
     vector_int.resize(vector_int.capacity() - 42);
 
-    assert(vector_int.data() == ft::addressof(*vector_int.begin()));
-    assert(vector_int.data() + vector_int.size() == ft::addressof(*vector_int.end()));
+    assert(vector_int.data() == &(*vector_int.begin()));
+    assert(vector_int.data() + vector_int.size() == &(*vector_int.end()));
 
     for (size_type i = size_type(); i < vector_int.size(); i++)
     {
