@@ -260,3 +260,14 @@ namespace ft
         lhs.swap(rhs);
     }
 }
+
+namespace std
+{
+    template <typename TKey, typename TMapped, typename TComp, typename TAlloc>
+    inline void swap(
+        ft::map<TKey, TMapped, TComp, TAlloc>& lhs,
+        ft::map<TKey, TMapped, TComp, TAlloc>& rhs)
+    {
+        ft::swap(lhs, rhs);
+    }
+}

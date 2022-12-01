@@ -209,3 +209,14 @@ namespace ft
         lhs.swap(rhs);
     }
 }
+
+namespace std
+{
+    template <typename T, typename TComp, typename TAlloc>
+    inline void swap(
+        ft::set<T, TComp, TAlloc>& lhs,
+        ft::set<T, TComp, TAlloc>& rhs)
+    {
+        ft::swap(lhs, rhs);
+    }
+}

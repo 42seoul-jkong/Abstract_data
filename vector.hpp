@@ -581,3 +581,14 @@ namespace ft
         lhs.swap(rhs);
     }
 }
+
+namespace std
+{
+    template <typename T, typename TAlloc>
+    inline void swap(
+        ft::vector<T, TAlloc>& lhs,
+        ft::vector<T, TAlloc>& rhs)
+    {
+        ft::swap(lhs, rhs);
+    }
+}
