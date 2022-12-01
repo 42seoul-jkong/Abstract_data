@@ -1,5 +1,10 @@
-ft:
-	c++ -Wall -Wextra -Werror --std=c++98 main.cpp -o test_ft -I.. -O3 -fsanitize=address -g3
+main: test_ft test_std
+	time ./test_ft 42 > ft.txt
+	time ./test_std 42 > std.txt
+	diff ft.txt std.txt
 
-std:
-	c++ -Wall -Wextra -Werror --std=c++98 main.cpp -o test_std -DFT_USE_STL -O3 -fsanitize=address -g3
+test_ft: main.cpp
+	c++ -Wall -Wextra -Werror --std=c++98 $^ -o $@ -I.. -O3 -fsanitize=address -g3
+
+test_std: main.cpp
+	c++ -Wall -Wextra -Werror --std=c++98 $^ -o $@ -I.. -DFT_USE_STL -O3 -fsanitize=address -g3
