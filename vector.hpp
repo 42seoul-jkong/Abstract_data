@@ -502,7 +502,16 @@ namespace ft
 
         void push_back(const value_type& value)
         {
-            this->insert(this->end(), value);
+            if (this->size() < this->capacity())
+            {
+                // fast way
+                alloc.construct(ft::addressof(*this->end()), value);
+                this->length++;
+            }
+            else
+            {
+                this->insert(this->end(), value);
+            }
         }
 
         void pop_back()
