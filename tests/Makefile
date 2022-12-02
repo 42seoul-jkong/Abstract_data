@@ -1,10 +1,12 @@
 .PHONY: all clean fclean re
 
 CXXFLAGS += -Wall -Wextra -Werror --std=c++98 -I.. -O3 -fsanitize=address -g3
+SEED := $(shell echo $$RANDOM)
 
 all: test_ft test_std
-	time ./test_ft 42 > ft.txt
-	time ./test_std 42 > std.txt
+	echo $(SEED)
+	time ./test_ft $(SEED) > ft.txt
+	time ./test_std $(SEED) > std.txt
 	diff ft.txt std.txt
 
 clean:
