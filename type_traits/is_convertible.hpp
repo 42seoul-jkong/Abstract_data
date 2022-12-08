@@ -7,7 +7,6 @@
 
 namespace ft
 {
-
     template <typename TSource, typename TDest>
     struct is_convertible
     {
