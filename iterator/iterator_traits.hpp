@@ -18,7 +18,7 @@ namespace ft
         };
 
         template <typename TIter>
-        struct iterator_traits_base<TIter, typename ft::void_t<typename TIter::iterator_category>::type>
+        struct iterator_traits_base<TIter, typename ft::make_void<typename TIter::iterator_category>::type>
         {
             typedef typename TIter::difference_type difference_type;
             typedef typename TIter::value_type value_type;

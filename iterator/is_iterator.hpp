@@ -17,7 +17,7 @@ namespace ft
     };
 
     template <typename T>
-    struct is_iterator<T, typename ft::void_t<typename ft::iterator_traits<T>::iterator_category>::type> : ft::true_type
+    struct is_iterator<T, typename ft::make_void<typename ft::iterator_traits<T>::iterator_category>::type> : ft::true_type
     {
     };
 

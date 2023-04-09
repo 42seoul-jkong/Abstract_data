@@ -6,7 +6,7 @@
 namespace ft
 {
     template <typename T>
-    struct void_t
+    struct make_void
     {
         typedef void type;
     };
