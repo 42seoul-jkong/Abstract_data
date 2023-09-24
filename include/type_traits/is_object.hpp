@@ -4,6 +4,7 @@
 #pragma once
 
 #include "integral_constant.hpp"
+#include "is_function.hpp"
 #include "is_reference.hpp"
 #include "is_void.hpp"
 

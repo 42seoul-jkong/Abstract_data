@@ -4,4 +4,3 @@ CompileFlags:
     - "-Wall"
     - "-Wextra"
     - "-Werror"
-    - "-I."
