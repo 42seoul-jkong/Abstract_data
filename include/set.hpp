@@ -4,11 +4,10 @@
 #pragma once
 
 #include "_tree.hpp"
+#include "functional.hpp"
 #include "utility.hpp"
 
 #include <cstddef>
-#include <exception>
-#include <functional>
 #include <memory>
 
 namespace ft
@@ -22,7 +21,7 @@ namespace ft
         }
     };
 
-    template <typename T, typename TComp = std::less<T>, typename TAlloc = std::allocator<T> >
+    template <typename T, typename TComp = ft::less<T>, typename TAlloc = std::allocator<T> >
     class set
     {
     public:

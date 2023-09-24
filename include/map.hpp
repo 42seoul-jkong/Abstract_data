@@ -4,11 +4,11 @@
 #pragma once
 
 #include "_tree.hpp"
+#include "functional.hpp"
+#include "stdexcept.hpp"
 #include "utility.hpp"
 
 #include <cstddef>
-#include <exception>
-#include <functional>
 #include <memory>
 
 namespace ft
@@ -22,7 +22,7 @@ namespace ft
         }
     };
 
-    template <typename TKey, typename TMapped, typename TComp = std::less<TKey>, typename TAlloc = std::allocator<ft::pair<const TKey, TMapped> > >
+    template <typename TKey, typename TMapped, typename TComp = ft::less<TKey>, typename TAlloc = std::allocator<ft::pair<const TKey, TMapped> > >
     class map
     {
     public:
@@ -108,7 +108,7 @@ namespace ft
             iterator it = this->find(key);
             if (it == this->end())
             {
-                throw std::out_of_range("map::at");
+                throw ft::out_of_range("map::at");
             }
             return it->second;
         }
@@ -117,7 +117,7 @@ namespace ft
             const_iterator it = this->find(key);
             if (it == this->end())
             {
-                throw std::out_of_range("map::at");
+                throw ft::out_of_range("map::at");
             }
             return it->second;
         }

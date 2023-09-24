@@ -3,5 +3,7 @@
 
 #pragma once
 
+#include "algorithm/copy.hpp"
 #include "algorithm/equal.hpp"
 #include "algorithm/lexicographical_compare.hpp"
+#include "algorithm/swap.hpp"

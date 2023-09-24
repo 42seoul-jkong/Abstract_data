@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "iterator/advance.hpp"
+#include "iterator/distance.hpp"
 #include "iterator/is_iterator.hpp"
 #include "iterator/iterator.hpp"
 #include "iterator/iterator_tags.hpp"

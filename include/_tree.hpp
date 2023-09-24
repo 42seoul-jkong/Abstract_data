@@ -4,11 +4,11 @@
 #pragma once
 
 #include "algorithm.hpp"
+#include "functional.hpp"
 #include "iterator.hpp"
 #include "utility.hpp"
 
 #include <cstddef>
-#include <functional>
 #include <limits>
 #include <memory>
 
@@ -598,7 +598,7 @@ namespace ft
 
     // TKeySelector: const TKey& (*keySelector)(const T&)
     // TComp: bool (*comp)(const TKey&, const TKey&)
-    template <typename TKey, typename T, typename TKeySelector, typename TComp = std::less<TKey>, typename TAlloc = std::allocator<T> >
+    template <typename TKey, typename T, typename TKeySelector, typename TComp = ft::less<TKey>, typename TAlloc = std::allocator<T> >
     class _tree
     {
     public:
@@ -1204,7 +1204,7 @@ namespace ft
 
         void swap(_tree& that)
         {
-            std::swap(this->header.left, that.header.left);
+            ft::swap(this->header.left, that.header.left);
             if (this->header.left == &that.header)
             {
                 this->header.left = &this->header;
@@ -1214,7 +1214,7 @@ namespace ft
                 that.header.left = &that.header;
             }
 
-            std::swap(this->header.right, that.header.right);
+            ft::swap(this->header.right, that.header.right);
             if (this->header.right == &that.header)
             {
                 this->header.right = &this->header;
@@ -1224,7 +1224,7 @@ namespace ft
                 that.header.right = &that.header;
             }
 
-            std::swap(this->header.parent, that.header.parent);
+            ft::swap(this->header.parent, that.header.parent);
             if (this->header.parent != NULL)
             {
                 this->header.parent->parent = &this->header;
@@ -1234,9 +1234,9 @@ namespace ft
                 that.header.parent->parent = &that.header;
             }
 
-            std::swap(this->comp, that.comp);
-            std::swap(this->alloc, that.alloc);
-            std::swap(this->number, that.number);
+            ft::swap(this->comp, that.comp);
+            ft::swap(this->alloc, that.alloc);
+            ft::swap(this->number, that.number);
         }
 
         size_type count(const key_type& key) const

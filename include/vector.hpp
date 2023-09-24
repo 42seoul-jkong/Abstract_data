@@ -6,12 +6,10 @@
 #include "algorithm.hpp"
 #include "iterator.hpp"
 #include "iterator/_pointer_iterator.hpp"
+#include "stdexcept.hpp"
 #include "type_traits.hpp"
 
-#include <algorithm>
 #include <cstddef>
-#include <exception>
-#include <iterator>
 #include <limits>
 
 namespace ft
@@ -115,8 +113,8 @@ namespace ft
                 : length(length), value(value) {}
 
             inline size_type count() const { return this->length; }
-            inline void copy_n_head(size_type pivot, iterator dest) const { std::fill_n(dest, pivot, this->value); }
-            inline void copy_n_tail(size_type pivot, iterator dest) const { std::fill_n(dest, this->count() - pivot, this->value); }
+            inline void copy_n_head(size_type pivot, iterator dest) const { vector::fill_n(dest, pivot, this->value); }
+            inline void copy_n_tail(size_type pivot, iterator dest) const { vector::fill_n(dest, this->count() - pivot, this->value); }
             inline void uninitialized_copy_n_head(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_fill_n(dest, pivot, this->value, alloc); }
             inline void uninitialized_copy_n_tail(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_fill_n(dest, this->count() - pivot, this->value, alloc); }
         };
@@ -132,12 +130,12 @@ namespace ft
             vector_operation_range(UIter first, UIter last)
                 : first(first), last(last)
             {
-                this->length = std::distance(first, last);
+                this->length = ft::distance(first, last);
             }
 
             inline size_type count() const { return this->length; }
-            inline void copy_n_head(size_type pivot, iterator dest) const { std::copy(this->first, vector::advance(this->first, pivot), dest); }
-            inline void copy_n_tail(size_type pivot, iterator dest) const { std::copy(vector::advance(this->first, pivot), this->last, dest); }
+            inline void copy_n_head(size_type pivot, iterator dest) const { ft::copy(this->first, vector::advance(this->first, pivot), dest); }
+            inline void copy_n_tail(size_type pivot, iterator dest) const { ft::copy(vector::advance(this->first, pivot), this->last, dest); }
             inline void uninitialized_copy_n_head(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(this->first, vector::advance(this->first, pivot), dest, alloc); }
             inline void uninitialized_copy_n_tail(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(vector::advance(this->first, pivot), this->last, dest, alloc); }
         };
@@ -212,7 +210,7 @@ namespace ft
         {
             if (!(pos < this->size()))
             {
-                throw std::out_of_range("vector::at");
+                throw ft::out_of_range("vector::at");
             }
             return this->start[pos];
         }
@@ -220,7 +218,7 @@ namespace ft
         {
             if (!(pos < this->size()))
             {
-                throw std::out_of_range("vector::at");
+                throw ft::out_of_range("vector::at");
             }
             return this->start[pos];
         }
@@ -254,7 +252,7 @@ namespace ft
         {
             if (new_cap > this->max_size())
             {
-                throw std::length_error("vector::reserve");
+                throw ft::length_error("vector::reserve");
             }
             if (this->capacity() < new_cap)
             {
@@ -281,7 +279,7 @@ namespace ft
         {
             if (this->max_size() < length)
             {
-                throw std::length_error(caller);
+                throw ft::length_error(caller);
             }
             return length;
         }
@@ -291,7 +289,7 @@ namespace ft
             size_type length = this->size();
             if (this->max_size() - length < delta)
             {
-                throw std::length_error(caller);
+                throw ft::length_error(caller);
             }
             size_type count = this->capacity();
             if (length + delta > count)
@@ -315,8 +313,18 @@ namespace ft
         // static inline UIter advance(UIter it, size_type n)
         static inline typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type advance(UIter it, difference_type n)
         {
-            std::advance(it, n);
+            ft::advance(it, n);
             return it;
+        }
+
+        static inline void fill_n(iterator pos, size_type count, const value_type& value)
+        {
+            iterator it = pos;
+            for (; count != 0; --count)
+            {
+                *it = value;
+                ++it;
+            }
         }
 
         static inline void uninitialized_fill_n(iterator pos, size_type count, const value_type& value, allocator_type& alloc)
@@ -370,13 +378,13 @@ namespace ft
         void insert_internal(iterator pos, const TOp& adaptor)
         {
             size_type count = adaptor.count();
-            size_type index = std::distance(this->begin(), pos);
+            size_type index = ft::distance(this->begin(), pos);
             size_type len = this->size();
             size_type cap = this->capacity();
             size_type new_cap = this->expand(count, "vector::insert");
             if (cap == new_cap)
             {
-                size_type difference = std::distance(pos, this->end());
+                size_type difference = ft::distance(pos, this->end());
                 if (len <= index + count)
                 {
                     // [end, end + (count - difference))
@@ -397,7 +405,7 @@ namespace ft
                     this->length += count;
 
                     // [pos, pos + (difference - count) == end - count) --(move reverse)-> (end, end - (difference - count) == pos + count]
-                    std::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
+                    ft::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
 
                     // [pos, pos + count)
                     adaptor.copy_n_head(count, pos);
@@ -456,7 +464,7 @@ namespace ft
 
         iterator insert(iterator pos, const value_type& value)
         {
-            size_type index = std::distance(this->begin(), pos);
+            size_type index = ft::distance(this->begin(), pos);
             this->insert(pos, size_type(1), value);
             return vector::advance(this->begin(), index);
         }
@@ -487,15 +495,15 @@ namespace ft
         iterator erase(iterator pos)
         {
             size_type count = 1;
-            std::copy(vector::advance(pos, count), this->end(), pos);
+            ft::copy(vector::advance(pos, count), this->end(), pos);
             this->destroy_tail_n(count);
             return pos;
         }
 
         iterator erase(iterator first, iterator last)
         {
-            size_type count = std::distance(first, last);
-            std::copy(last, this->end(), first);
+            size_type count = ft::distance(first, last);
+            ft::copy(last, this->end(), first);
             this->destroy_tail_n(count);
             return first;
         }
@@ -534,11 +542,11 @@ namespace ft
 
         void swap(vector& that)
         {
-            std::swap(this->start, that.start);
-            std::swap(this->length, that.length);
-            std::swap(this->count, that.count);
+            ft::swap(this->start, that.start);
+            ft::swap(this->length, that.length);
+            ft::swap(this->count, that.count);
 
-            std::swap(this->alloc, that.alloc);
+            ft::swap(this->alloc, that.alloc);
         }
 
     public:
