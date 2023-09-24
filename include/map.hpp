@@ -171,21 +171,19 @@ namespace ft
             }
         }
 
-        iterator erase(iterator pos)
+        void erase(iterator pos)
         {
             iterator it = pos++;
             this->c.erase(it.base());
-            return pos;
         }
 
-        iterator erase(iterator first, iterator last)
+        void erase(iterator first, iterator last)
         {
             while (first != last)
             {
                 iterator it = first++;
                 this->c.erase(it.base());
             }
-            return last;
         }
 
         size_type erase(const key_type& key)
