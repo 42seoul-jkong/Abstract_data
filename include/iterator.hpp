@@ -5,5 +5,6 @@
 
 #include "iterator/is_iterator.hpp"
 #include "iterator/iterator.hpp"
+#include "iterator/iterator_tags.hpp"
 #include "iterator/iterator_traits.hpp"
 #include "iterator/reverse_iterator.hpp"

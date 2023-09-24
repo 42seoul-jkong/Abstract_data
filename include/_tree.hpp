@@ -442,7 +442,7 @@ namespace ft
         typedef T& reference;
         typedef T* pointer;
 
-        typedef std::bidirectional_iterator_tag iterator_category;
+        typedef ft::bidirectional_iterator_tag iterator_category;
         typedef std::ptrdiff_t difference_type;
 
         typename TTree::node_type* p;
@@ -521,7 +521,7 @@ namespace ft
         typedef const T& reference;
         typedef const T* pointer;
 
-        typedef std::bidirectional_iterator_tag iterator_category;
+        typedef ft::bidirectional_iterator_tag iterator_category;
         typedef std::ptrdiff_t difference_type;
 
         typename TTree::node_type* p;

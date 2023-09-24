@@ -3,11 +3,10 @@
 
 #pragma once
 
+#include "iterator_tags.hpp"
 #include "iterator_traits.hpp"
 
 #include "../type_traits.hpp"
-
-#include <iterator>
 
 namespace ft
 {
@@ -35,27 +34,27 @@ namespace ft
     }
 
     template <typename T>
-    struct is_input_iterator : _internal::is_specific_iterator<std::input_iterator_tag, T>
+    struct is_input_iterator : _internal::is_specific_iterator<ft::input_iterator_tag, T>
     {
     };
 
     template <typename T>
-    struct is_output_iterator : _internal::is_specific_iterator<std::output_iterator_tag, T>
+    struct is_output_iterator : _internal::is_specific_iterator<ft::output_iterator_tag, T>
     {
     };
 
     template <typename T>
-    struct is_forward_iterator : _internal::is_specific_iterator<std::forward_iterator_tag, T>
+    struct is_forward_iterator : _internal::is_specific_iterator<ft::forward_iterator_tag, T>
     {
     };
 
     template <typename T>
-    struct is_bidirectional_iterator : _internal::is_specific_iterator<std::bidirectional_iterator_tag, T>
+    struct is_bidirectional_iterator : _internal::is_specific_iterator<ft::bidirectional_iterator_tag, T>
     {
     };
 
     template <typename T>
-    struct is_random_access_iterator : _internal::is_specific_iterator<std::random_access_iterator_tag, T>
+    struct is_random_access_iterator : _internal::is_specific_iterator<ft::random_access_iterator_tag, T>
     {
     };
 }
