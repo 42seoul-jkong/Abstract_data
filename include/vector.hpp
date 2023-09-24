@@ -61,8 +61,18 @@ namespace ft
         vector(const vector& that)
             : start(), length(that.length), count(that.count), alloc(that.alloc)
         {
-            this->start = this->alloc.allocate(this->capacity());
-            vector::uninitialized_copy(that.begin(), that.end(), this->begin(), this->alloc);
+            size_type count = this->capacity();
+            pointer assign = this->alloc.allocate(count);
+            try
+            {
+                vector::uninitialized_copy(that.begin(), that.end(), iterator(assign), this->alloc);
+            }
+            catch (...)
+            {
+                this->alloc.deallocate(assign, count);
+                throw;
+            }
+            this->start = assign;
         }
 
         ~vector()
