@@ -24,34 +24,51 @@ namespace ft
         red
     };
 
-    template <typename T>
-    struct _node_data
+    struct _node
     {
-        typedef _node_data<T>* pointer_type;
+        typedef _node* pointer_type;
 
         pointer_type left, right, parent;
-        T data;
         _node_color color;
 
-        _node_data()
+        explicit _node(_node_color color = black)
             : left(), right(), parent(),
-              data(), color(black) {}
+              color(color) {}
 
-        _node_data(const T& data)
-            : left(), right(), parent(),
-              data(data), color(red) {}
-
-        _node_data(const _node_data& that)
+        _node(const _node& that)
             : left(that.left), right(that.right), parent(that.parent),
-              data(that.data), color(that.color) {}
+              color(that.color) {}
 
-        ~_node_data() {}
+        ~_node() {}
 
-        _node_data& operator=(const _node_data& that)
+        _node& operator=(const _node& that)
         {
             this->left = that.left;
             this->right = that.right;
             this->parent = that.parent;
+            this->color = that.color;
+            return *this;
+        }
+    };
+
+    template <typename T>
+    struct _node_with_data : _node
+    {
+        typedef _node_with_data<T>* pointer_type;
+
+        T data;
+
+        explicit _node_with_data(const T& data)
+            : _node(red), data(data) {}
+
+        _node_with_data(const _node_with_data& that)
+            : _node(that), data(that.data) {}
+
+        ~_node_with_data() {}
+
+        _node_with_data& operator=(const _node_with_data& that)
+        {
+            this->_node::operator=(that);
             this->data = that.data;
             this->color = that.color;
             return *this;
@@ -59,10 +76,9 @@ namespace ft
     };
 
     // 참조: 2-3-4 이진 탐색 트리, Red-Black 트리
-    template <typename TNode>
     struct _tree_algorithm
     {
-        typedef typename TNode::pointer_type node_pointer;
+        typedef _node::pointer_type node_pointer;
 
         // BEGIN Binary Search Tree
         static node_pointer successor(node_pointer node)
@@ -445,7 +461,7 @@ namespace ft
         typedef ft::bidirectional_iterator_tag iterator_category;
         typedef std::ptrdiff_t difference_type;
 
-        typename TTree::node_type* p;
+        typename TTree::node_type::pointer_type p;
 
         _tree_iterator() throw()
             : p() {}
@@ -469,12 +485,12 @@ namespace ft
 
         reference operator*() const throw()
         {
-            return this->p->data;
+            return static_cast<typename TTree::node_with_value_type::pointer_type>(this->p)->data;
         }
 
         pointer operator->() const throw()
         {
-            return &this->p->data;
+            return &static_cast<typename TTree::node_with_value_type::pointer_type>(this->p)->data;
         }
 
         _tree_iterator& operator++() throw()
@@ -524,7 +540,7 @@ namespace ft
         typedef ft::bidirectional_iterator_tag iterator_category;
         typedef std::ptrdiff_t difference_type;
 
-        typename TTree::node_type* p;
+        typename TTree::node_type::pointer_type p;
 
         _tree_const_iterator() throw()
             : p() {}
@@ -551,12 +567,12 @@ namespace ft
 
         reference operator*() const throw()
         {
-            return this->p->data;
+            return static_cast<typename TTree::node_with_value_type::pointer_type>(this->p)->data;
         }
 
         pointer operator->() const throw()
         {
-            return &this->p->data;
+            return &static_cast<typename TTree::node_with_value_type::pointer_type>(this->p)->data;
         }
 
         _tree_const_iterator& operator++() throw()
@@ -604,11 +620,12 @@ namespace ft
     public:
         typedef TKey key_type;
         typedef T value_type;
-        typedef _node_data<T> node_type;
-        typedef _tree_algorithm<node_type> algo;
+        typedef _node node_type;
+        typedef _tree_algorithm algo;
+        typedef _node_with_data<T> node_with_value_type;
         typedef TKeySelector key_selector;
         typedef TComp key_compare;
-        typedef typename TAlloc::template rebind<node_type>::other allocator_type;
+        typedef typename TAlloc::template rebind<node_with_value_type>::other allocator_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
 
@@ -659,10 +676,10 @@ namespace ft
     protected:
         node_type* insert_raw(node_type* parent, bool left, const value_type& data)
         {
-            node_type* node = this->alloc.allocate(1);
+            typename node_with_value_type::pointer_type node = this->alloc.allocate(1);
             try
             {
-                this->alloc.construct(node, node_type(data));
+                this->alloc.construct(node, node_with_value_type(data));
             }
             catch (...)
             {
@@ -714,11 +731,11 @@ namespace ft
             node_type* y = this->header_node();
             while (x != NULL)
             {
-                if (this->comp(key_selector()(x->data), lower_key))
+                if (this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(x)->data), lower_key))
                 {
                     x = x->right;
                 }
-                else if (this->comp(upper_key, key_selector()(x->data)))
+                else if (this->comp(upper_key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(x)->data)))
                 {
                     y = x;
                     x = x->left;
@@ -739,7 +756,7 @@ namespace ft
             node_type* result = end;
             while (it != NULL)
             {
-                if (!this->comp(key_selector()(it->data), key))
+                if (!this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(it)->data), key))
                 {
                     result = it;
                     it = it->left;
@@ -758,7 +775,7 @@ namespace ft
             node_type* result = end;
             while (it != NULL)
             {
-                if (this->comp(key, key_selector()(it->data)))
+                if (this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(it)->data)))
                 {
                     result = it;
                     it = it->left;
@@ -786,8 +803,8 @@ namespace ft
                 return;
             }
 
-            node_type* src_current = source;
-            node_type* dest_current = this->alloc.allocate(1);
+            typename node_with_value_type::pointer_type src_current = static_cast<typename node_with_value_type::pointer_type>(source);
+            typename node_with_value_type::pointer_type dest_current = this->alloc.allocate(1);
 
             this->header.left = dest_current;
             this->header.right = dest_current;
@@ -804,8 +821,8 @@ namespace ft
                 if (src_current->left != NULL && dest_current->left == NULL)
                 {
                     // Down left
-                    src_current = src_current->left;
-                    node_type* node = this->alloc.allocate(1);
+                    src_current = static_cast<typename node_with_value_type::pointer_type>(src_current->left);
+                    typename node_with_value_type::pointer_type node = this->alloc.allocate(1);
 
                     dest_current->left = node;
 
@@ -824,8 +841,8 @@ namespace ft
                 else if (src_current->right != NULL && dest_current->right == NULL)
                 {
                     // Down right
-                    src_current = src_current->right;
-                    node_type* node = this->alloc.allocate(1);
+                    src_current = static_cast<typename node_with_value_type::pointer_type>(src_current->right);
+                    typename node_with_value_type::pointer_type node = this->alloc.allocate(1);
 
                     dest_current->right = node;
 
@@ -841,8 +858,8 @@ namespace ft
                 else if (src_current != source)
                 {
                     // Up parent
-                    src_current = src_current->parent;
-                    dest_current = dest_current->parent;
+                    src_current = static_cast<typename node_with_value_type::pointer_type>(src_current->parent);
+                    dest_current = static_cast<typename node_with_value_type::pointer_type>(dest_current->parent);
                 }
                 else
                 {
@@ -867,8 +884,10 @@ namespace ft
                 {
                     // trying dispose right
                     next = node->right;
-                    this->alloc.destroy(node);
-                    this->alloc.deallocate(node, 1);
+
+                    typename node_with_value_type::pointer_type data_node = static_cast<typename node_with_value_type::pointer_type>(node);
+                    this->alloc.destroy(data_node);
+                    this->alloc.deallocate(data_node, 1);
                 }
                 node = next;
             }
@@ -952,7 +971,7 @@ namespace ft
             {
                 if (hint != NULL)
                 {
-                    if (hint == this->end_node() || this->comp(key, key_selector()(hint->data)))
+                    if (hint == this->end_node() || this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(hint)->data)))
                     {
                         node_type* hint_prev;
                         if (hint == this->begin_node())
@@ -963,7 +982,7 @@ namespace ft
                         {
                             hint_prev = algo::predecessor(hint);
                         }
-                        if (hint_prev == NULL || this->comp(key_selector()(hint_prev->data), key))
+                        if (hint_prev == NULL || this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(hint_prev)->data), key))
                         {
                             left = this->root_node() == NULL || hint->left == NULL;
                             if (left)
@@ -984,7 +1003,7 @@ namespace ft
                 while (it != NULL)
                 {
                     parent = it;
-                    left = this->comp(key, key_selector()(it->data));
+                    left = this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(it)->data));
                     if (left)
                     {
                         it = it->left;
@@ -995,7 +1014,7 @@ namespace ft
                         it = it->right;
                     }
                 }
-                if (result != this->end_node() && !this->comp(key_selector()(result->data), key))
+                if (result != this->end_node() && !this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(result)->data), key))
                 {
                     return ft::make_pair(result, false);
                 }
@@ -1014,7 +1033,7 @@ namespace ft
             {
                 if (hint != NULL)
                 {
-                    if (hint == this->end_node() || !this->comp(key_selector()(hint->data), key))
+                    if (hint == this->end_node() || !this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(hint)->data), key))
                     {
                         node_type* hint_prev;
                         if (hint == this->begin_node())
@@ -1025,7 +1044,7 @@ namespace ft
                         {
                             hint_prev = algo::predecessor(hint);
                         }
-                        if (hint_prev == NULL || !this->comp(key, key_selector()(hint_prev->data)))
+                        if (hint_prev == NULL || !this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(hint_prev)->data)))
                         {
                             left = this->root_node() == NULL || hint->left == NULL;
                             if (left)
@@ -1055,7 +1074,7 @@ namespace ft
                 while (it != NULL)
                 {
                     parent = it;
-                    if (this->comp(key, key_selector()(it->data)))
+                    if (this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(it)->data)))
                     {
                         it = it->left;
                     }
@@ -1064,7 +1083,7 @@ namespace ft
                         it = it->right;
                     }
                 }
-                left = parent == this->end_node() || this->comp(key, key_selector()(parent->data));
+                left = parent == this->end_node() || this->comp(key, key_selector()(static_cast<typename node_with_value_type::pointer_type>(parent)->data));
                 break;
             }
 
@@ -1074,7 +1093,7 @@ namespace ft
                 while (it != NULL)
                 {
                     parent = it;
-                    if (!this->comp(key_selector()(it->data), key))
+                    if (!this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(it)->data), key))
                     {
                         it = it->left;
                     }
@@ -1083,7 +1102,7 @@ namespace ft
                         it = it->right;
                     }
                 }
-                left = parent == this->end_node() || !this->comp(key_selector()(parent->data), key);
+                left = parent == this->end_node() || !this->comp(key_selector()(static_cast<typename node_with_value_type::pointer_type>(parent)->data), key);
                 break;
             }
             } while (0);
@@ -1193,8 +1212,9 @@ namespace ft
 
             algo::repair_after_erase(this->header_node(), z, y, x, x_parent);
 
-            this->alloc.destroy(z);
-            this->alloc.deallocate(z, 1);
+            typename node_with_value_type::pointer_type data_z = static_cast<typename node_with_value_type::pointer_type>(z);
+            this->alloc.destroy(data_z);
+            this->alloc.deallocate(data_z, 1);
             this->number--;
 
 #ifdef FT_TREE_ASSERT
