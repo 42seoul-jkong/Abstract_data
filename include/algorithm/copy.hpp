@@ -12,7 +12,7 @@ namespace ft
     inline UIter copy(TIter first, TIter last, UIter pos)
     {
         UIter it = pos;
-        for (UIter val = first; val != last; ++val)
+        for (TIter val = first; val != last; ++val)
         {
             *it = *val;
             ++it;
@@ -24,7 +24,7 @@ namespace ft
     inline UIter copy_backward(TIter first, TIter last, UIter pos)
     {
         UIter it = pos;
-        for (UIter val = first; val != last;)
+        for (TIter val = last; val != first;)
         {
             --val;
             --it;
