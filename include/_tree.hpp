@@ -18,30 +18,30 @@
 
 namespace ft
 {
-    enum _node_color
+    enum _tree_node_color
     {
         black,
         red
     };
 
-    struct _node
+    struct _tree_node_base
     {
-        typedef _node* pointer_type;
+        typedef _tree_node_base* pointer_type;
 
         pointer_type left, right, parent;
-        _node_color color;
+        _tree_node_color color;
 
-        explicit _node(_node_color color = black)
+        explicit _tree_node_base(_tree_node_color color = black)
             : left(), right(), parent(),
               color(color) {}
 
-        _node(const _node& that)
+        _tree_node_base(const _tree_node_base& that)
             : left(that.left), right(that.right), parent(that.parent),
               color(that.color) {}
 
-        ~_node() {}
+        ~_tree_node_base() {}
 
-        _node& operator=(const _node& that)
+        _tree_node_base& operator=(const _tree_node_base& that)
         {
             this->left = that.left;
             this->right = that.right;
@@ -52,21 +52,21 @@ namespace ft
     };
 
     template <typename T>
-    struct _node_with_data : _node
+    struct _tree_node : _tree_node_base
     {
         T data;
 
-        explicit _node_with_data(const T& data)
-            : _node(red), data(data) {}
+        explicit _tree_node(const T& data)
+            : _tree_node_base(red), data(data) {}
 
-        _node_with_data(const _node_with_data& that)
-            : _node(that), data(that.data) {}
+        _tree_node(const _tree_node& that)
+            : _tree_node_base(that), data(that.data) {}
 
-        ~_node_with_data() {}
+        ~_tree_node() {}
 
-        _node_with_data& operator=(const _node_with_data& that)
+        _tree_node& operator=(const _tree_node& that)
         {
-            this->_node::operator=(that);
+            this->_tree_node_base::operator=(that);
             this->data = that.data;
             return *this;
         }
@@ -75,7 +75,7 @@ namespace ft
     // 참조: 2-3-4 이진 탐색 트리, Red-Black 트리
     struct _tree_algorithm
     {
-        typedef _node::pointer_type node_pointer;
+        typedef _tree_node_base::pointer_type node_pointer;
 
         // BEGIN Binary Search Tree
         static node_pointer successor(node_pointer node)
@@ -326,7 +326,7 @@ namespace ft
 
         static void repair_after_erase(node_pointer header, node_pointer z, node_pointer y, node_pointer x, node_pointer x_parent)
         {
-            _node_color z_color;
+            _tree_node_color z_color;
             if (y == z)
             {
                 z_color = z->color;
@@ -618,7 +618,7 @@ namespace ft
         typedef TKey key_type;
         typedef T value_type;
         typedef _tree_algorithm algo;
-        typedef _node_with_data<T> node_type;
+        typedef _tree_node<T> node_type;
         typedef TKeySelector key_selector;
         typedef TComp key_compare;
         typedef typename TAlloc::template rebind<node_type>::other allocator_type;
@@ -631,7 +631,7 @@ namespace ft
         typedef ft::reverse_iterator<const_iterator> reverse_const_iterator;
 
     private:
-        _node header;
+        _tree_node_base header;
 
         key_compare comp;
         allocator_type alloc;
