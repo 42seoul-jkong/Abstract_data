@@ -144,10 +144,10 @@ namespace ft
             }
 
             inline size_type count() const { return this->length; }
-            inline void copy_n_head(size_type pivot, iterator dest) const { ft::copy(this->first, vector::advance(this->first, pivot), dest); }
-            inline void copy_n_tail(size_type pivot, iterator dest) const { ft::copy(vector::advance(this->first, pivot), this->last, dest); }
-            inline void uninitialized_copy_n_head(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(this->first, vector::advance(this->first, pivot), dest, alloc); }
-            inline void uninitialized_copy_n_tail(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(vector::advance(this->first, pivot), this->last, dest, alloc); }
+            inline void copy_n_head(size_type pivot, iterator dest) const { ft::copy(this->first, vector::next(this->first, pivot), dest); }
+            inline void copy_n_tail(size_type pivot, iterator dest) const { ft::copy(vector::next(this->first, pivot), this->last, dest); }
+            inline void uninitialized_copy_n_head(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(this->first, vector::next(this->first, pivot), dest, alloc); }
+            inline void uninitialized_copy_n_tail(size_type pivot, iterator dest, allocator_type& alloc) const { vector::uninitialized_copy(vector::next(this->first, pivot), this->last, dest, alloc); }
         };
 
         template <typename TOp>
@@ -160,7 +160,7 @@ namespace ft
                 if (length < count)
                 {
                     adaptor.copy_n_head(length, this->begin());
-                    adaptor.uninitialized_copy_n_tail(length, vector::advance(this->begin(), length), this->alloc);
+                    adaptor.uninitialized_copy_n_tail(length, vector::next(this->begin(), length), this->alloc);
                 }
                 else
                 {
@@ -320,8 +320,8 @@ namespace ft
 
     private:
         template <typename UIter>
-        // static inline UIter advance(UIter it, size_type n)
-        static inline typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type advance(UIter it, difference_type n)
+        // static inline UIter next(UIter it, size_type n)
+        static inline typename ft::enable_if<ft::is_iterator<UIter>::value, UIter>::type next(UIter it, difference_type n)
         {
             ft::advance(it, n);
             return it;
@@ -402,7 +402,7 @@ namespace ft
                     this->length += count - difference;
 
                     // [pos, pos + difference) --(move)-> [(end + (count - difference)) == pos + count, (end + (count - difference)) + difference == pos + count + difference)
-                    vector::uninitialized_copy(pos, vector::advance(pos, difference), this->end(), this->alloc);
+                    vector::uninitialized_copy(pos, vector::next(pos, difference), this->end(), this->alloc);
                     this->length += difference;
 
                     // [pos, pos + difference)
@@ -411,11 +411,11 @@ namespace ft
                 else
                 {
                     // [end - count, end) --(move)-> [end, end + count)
-                    vector::uninitialized_copy(vector::advance(this->end(), -count), this->end(), this->end(), this->alloc);
+                    vector::uninitialized_copy(vector::next(this->end(), -count), this->end(), this->end(), this->alloc);
                     this->length += count;
 
                     // [pos, pos + (difference - count) == end - count) --(move reverse)-> (end, end - (difference - count) == pos + count]
-                    ft::copy_backward(pos, vector::advance(pos, difference - count), vector::advance(pos, difference));
+                    ft::copy_backward(pos, vector::next(pos, difference - count), vector::next(pos, difference));
 
                     // [pos, pos + count)
                     adaptor.copy_n_head(count, pos);
@@ -429,10 +429,10 @@ namespace ft
                     vector::uninitialized_copy(this->begin(), pos, iterator(insert), this->alloc);
                     try
                     {
-                        adaptor.uninitialized_copy_n_head(count, vector::advance(iterator(insert), index), this->alloc);
+                        adaptor.uninitialized_copy_n_head(count, vector::next(iterator(insert), index), this->alloc);
                         try
                         {
-                            vector::uninitialized_copy(pos, this->end(), vector::advance(iterator(insert), index + count), this->alloc);
+                            vector::uninitialized_copy(pos, this->end(), vector::next(iterator(insert), index + count), this->alloc);
                         }
                         catch (...)
                         {
@@ -476,7 +476,7 @@ namespace ft
         {
             size_type index = ft::distance(this->begin(), pos);
             this->insert(pos, size_type(1), value);
-            return vector::advance(this->begin(), index);
+            return vector::next(this->begin(), index);
         }
 
         void insert(iterator pos, size_type count, const value_type& value)
@@ -505,7 +505,7 @@ namespace ft
         iterator erase(iterator pos)
         {
             size_type count = 1;
-            ft::copy(vector::advance(pos, count), this->end(), pos);
+            ft::copy(vector::next(pos, count), this->end(), pos);
             this->destroy_tail_n(count);
             return pos;
         }
@@ -523,7 +523,7 @@ namespace ft
             if (this->size() < this->capacity())
             {
                 // fast way
-                alloc.construct(ft::addressof(*this->end()), value);
+                this->alloc.construct(ft::addressof(*this->end()), value);
                 this->length++;
             }
             else
@@ -534,7 +534,7 @@ namespace ft
 
         void pop_back()
         {
-            this->erase(vector::advance(this->end(), -1));
+            this->erase(vector::next(this->end(), -1));
         }
 
         void resize(size_type count, value_type value = value_type())
@@ -546,7 +546,7 @@ namespace ft
             }
             else if (count < size)
             {
-                this->erase(vector::advance(this->begin(), count), this->end());
+                this->erase(vector::next(this->begin(), count), this->end());
             }
         }
 
